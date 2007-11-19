@@ -1,18 +1,34 @@
 package net.paguo.statistics.snmp.commands;
 
+import net.paguo.statistics.snmp.commands.impl.DoubledRenameStrategyImpl;
+import net.paguo.statistics.snmp.commands.impl.NormalRenameStrategyImpl;
 import net.paguo.statistics.snmp.model.HostDefinition;
 import net.paguo.statistics.snmp.model.HostQuery;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.snmp4j.*;
+import org.snmp4j.CommunityTarget;
+import org.snmp4j.PDU;
+import org.snmp4j.Session;
+import org.snmp4j.Snmp;
+import org.snmp4j.Target;
+import org.snmp4j.TransportMapping;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.smi.*;
+import org.snmp4j.smi.Address;
+import org.snmp4j.smi.GenericAddress;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.Variable;
+import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -30,8 +46,8 @@ public class HostRunner implements Runnable{
     private static final OID INCOME_OID = new OID(".1.3.6.1.2.1.2.2.1.10");
     private static final OID OUTCOME_OID = new OID(".1.3.6.1.2.1.2.2.1.16");
 
-    public HostRunner(HostDefinition definition){
-        this.definition = definition;
+    public HostRunner(HostDefinition hostDefinition){
+        this.definition = hostDefinition;
     }
 
     public void run() {
@@ -68,11 +84,57 @@ public class HostRunner implements Runnable{
             log.error("Time request failed for " + definition.getHostAddress());
             return;
         }
-        Map<Long, String> interfaces = getBulk(target, snmp, INTERFACES_OID);
+        final Map<Long, String> map = getBulk(target, snmp, INTERFACES_OID);
+        Map<Long, String> interfaces = checkInterfaces(map);
+
         Map<Long, String> inputs = getBulk(target, snmp, INCOME_OID);
         Map<Long, String> outputs = getBulk(target, snmp, OUTCOME_OID);
         snmp.close();
         analyze(hq, interfaces, inputs, outputs);
+    }
+
+    Map<Long,String> checkInterfaces(Map<Long, String> interfaces) {
+        Map<Long, String>  result = new HashMap<Long, String>();
+        RenameStrategy normalStrategy = new NormalRenameStrategyImpl();
+        RenameStrategy doubleStrategy = new DoubledRenameStrategyImpl();
+        Set<String> doubled = countEntries(interfaces.values());
+        for (Long interfaceIndex : interfaces.keySet()) {
+           String interfaceName = interfaces.get(interfaceIndex);
+           if (doubled.contains(interfaceName)){
+               final String value = doubleStrategy.renameInterface(interfaceName, interfaceIndex);
+               result.put(interfaceIndex, value);
+               log.debug(MessageFormat
+                       .format("Host: {0} already has {1}", this.definition.getHostAddress(),
+                       interfaceName));
+           }else{
+               final String value = normalStrategy.renameInterface(interfaceName, interfaceIndex);
+               result.put(interfaceIndex, value);
+           }
+        }
+        return result;
+    }
+
+    private Set<String> countEntries(Collection<String> names){
+        Map<String, Integer> result = new HashMap<String, Integer>();
+
+        for (String name : names) {
+            Integer count = result.get(name);
+            result.put(name, count == null ? 1 : count + 1);
+        }
+
+        final Set<String> doubled = new HashSet<String>();
+        for (String s : result.keySet()) {
+            Integer count = result.get(s);
+            if (count > 1){
+                doubled.add(s);
+            }
+        }
+        return doubled;
+    }
+    
+    public String renameInterface(Long interfaceIndex, String interfaceName) {
+        return interfaceName
+                       + "-ix" + String.valueOf(interfaceIndex);
     }
 
     private void analyze(HostQuery hq, Map<Long, String> interfaces, Map<Long, String> inputs, Map<Long, String> outputs) {

@@ -30,7 +30,41 @@ public class HostQuery {
     private static final Log log = LogFactory.getLog(HostQuery.class);
     private static final String LAST_CHECK_SAVE = "insert into last_snmp_checks (cisco, last_check) values (?, ?)";
 
-    public boolean checkTrafficRecordExists(){
+    public boolean checkTrafficRecordExists(String hostAddress, String iface, Timestamp now){
+        log.debug("checkTrafficRecordExists()" + "<<<");
+        DBProxy proxy = DBProxyFactory.getDBProxy();
+        Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        boolean result = false;
+        try {
+            c = proxy.getConnection();
+            ps = c.prepareStatement(CHECK_TRAFFIC);
+            ps.setString(1, hostAddress);
+            ps.setString(2, iface);
+            ps.setTimestamp(3, now);
+            rs = ps.executeQuery();
+            if (rs.next()){
+                result = rs.getInt(1) > 1;
+            }
+        } catch (SQLException e) {
+            log.error(e);
+        } finally {
+             try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                log.error(e);
+            }
+        }
+        return result;
     }
 
     public Set<HostDefinition> getDefinitions() {
@@ -189,12 +223,14 @@ public class HostQuery {
                 String iface = interfaces.get(index);
                 Long incoming = Long.parseLong(inputs.get(index));
                 Long outcoming = Long.parseLong(outputs.get(index));
-                ps.setString(1, hostAddress);
-                ps.setString(2, iface);
-                ps.setLong(3, incoming);
-                ps.setLong(4, outcoming);
-                ps.setTimestamp(5, now);
-                ps.addBatch();
+                if  (! checkTrafficRecordExists(hostAddress, iface, now)){
+                    ps.setString(1, hostAddress);
+                    ps.setString(2, iface);
+                    ps.setLong(3, incoming);
+                    ps.setLong(4, outcoming);
+                    ps.setTimestamp(5, now);
+                    ps.addBatch();
+                }
             }
             int[] results  = ps.executeBatch();
             saveLastCheck(hostAddress, now);
