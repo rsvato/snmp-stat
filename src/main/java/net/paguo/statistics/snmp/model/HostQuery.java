@@ -24,10 +24,14 @@ public class HostQuery {
     private static final String ADD_INTERFACE = "insert into cisco_iface (cisco, interface) values (?, ?)";
     private static final String INSERT_TRAFFIC = "insert into tr(cisco, interface, inoctets, outoctets, dt) " +
             "values (?, ?, ?, ?, ?)";
+    private static final String CHECK_TRAFFIC = "select count(*) from tr where cisco = ? and interface =? and dt = ?";
 
 
     private static final Log log = LogFactory.getLog(HostQuery.class);
     private static final String LAST_CHECK_SAVE = "insert into last_snmp_checks (cisco, last_check) values (?, ?)";
+
+    public boolean checkTrafficRecordExists(){
+    }
 
     public Set<HostDefinition> getDefinitions() {
         log.debug("getHostList() " + "<<<");
