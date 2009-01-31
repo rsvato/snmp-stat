@@ -4,6 +4,7 @@ import net.paguo.statistics.snmp.commands.impl.DoubledRenameStrategyImpl;
 import net.paguo.statistics.snmp.commands.impl.NormalRenameStrategyImpl;
 import net.paguo.statistics.snmp.model.HostDefinition;
 import net.paguo.statistics.snmp.model.HostQuery;
+import net.paguo.statistics.snmp.model.HostResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.snmp4j.CommunityTarget;
@@ -30,41 +31,48 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * User: slava
  * Date: 26.04.2007
  * Time: 1:07:18
  * Version: $Id$
- * @deprecated
  */
-@Deprecated
-public class HostRunner implements Runnable{
-    private static final Log log = LogFactory.getLog(HostRunner.class);
+public class HostCallable implements Callable<HostResult> {
+    private static final Log log = LogFactory.getLog(HostCallable.class);
     private HostDefinition definition;
     private static final long MAX_TIMEOUT = 2000l;
     private static final OID UPTIME_OID = new OID(".1.3.6.1.2.1.1.3.0");
     private static final OID INTERFACES_OID = new OID(".1.3.6.1.2.1.2.2.1.2");
     private static final OID INCOME_OID = new OID(".1.3.6.1.2.1.2.2.1.10");
     private static final OID OUTCOME_OID = new OID(".1.3.6.1.2.1.2.2.1.16");
+    private Map<String, RESULT> registry;
+    private RESULT result;
 
-    public HostRunner(HostDefinition hostDefinition){
+    public HostCallable(HostDefinition hostDefinition, Map<String, RESULT> registry){
         this.definition = hostDefinition;
+        this.registry = registry;
     }
 
-    public void run() {
+    public HostResult call() {
+        HostResult result = new HostResult(definition);
         try {
             long start = System.currentTimeMillis();
-            doQuery();
+            doQuery(result);
             log.debug(definition.getHostAddress() + " session time: "
                     + (System.currentTimeMillis() - start) + " ms");
         } catch (IOException e) {
+            this.result = RESULT.FAILURE;
             log.error(e);
+        }finally{
+            registry.put(definition.getHostAddress(), this.result);
         }
+        return result;
     }
 
-    public void doQuery() throws IOException {
-        HostQuery hq = new HostQuery();
+    public void doQuery(HostResult def) throws IOException {
         Address snmpAddress = createAddress();
         TransportMapping mapping = new DefaultUdpTransportMapping();
         CommunityTarget target = createCommunity(snmpAddress);
@@ -73,17 +81,18 @@ public class HostRunner implements Runnable{
         PDU pdu = uptimePDU();
         ResponseEvent evtx = snmp.send(pdu, target);
         PDU response = evtx.getResponse();
-        
+
         if (response != null && response.getErrorStatus() == 0){
             Vector bindings = response.getVariableBindings();
             if (bindings.size() > 0) {
                 VariableBinding binding = (VariableBinding) bindings.get(0);
                 Variable variable = binding.getVariable();
                 long l = variable.toLong();
-                hq.saveUptime(definition.getHostAddress(), l);
+                def.setUptime(l);
             }
         }else {
             log.error("Time request failed for " + definition.getHostAddress());
+            this.result = RESULT.FAILURE;
             return;
         }
         final Map<Long, String> map = getBulk(target, snmp, INTERFACES_OID);
@@ -92,7 +101,10 @@ public class HostRunner implements Runnable{
         Map<Long, String> inputs = getBulk(target, snmp, INCOME_OID);
         Map<Long, String> outputs = getBulk(target, snmp, OUTCOME_OID);
         snmp.close();
-        analyze(hq, interfaces, inputs, outputs);
+        def.setInterfaces(interfaces);
+        def.setInputs(inputs);
+        def.setOutputs(outputs);
+        result = RESULT.SUCCESS;
     }
 
     Map<Long,String> checkInterfaces(Map<Long, String> interfaces) {
@@ -133,15 +145,10 @@ public class HostRunner implements Runnable{
         }
         return doubled;
     }
-    
+
     public String renameInterface(Long interfaceIndex, String interfaceName) {
         return interfaceName
                        + "-ix" + String.valueOf(interfaceIndex);
-    }
-
-    private void analyze(HostQuery hq, Map<Long, String> interfaces, Map<Long, String> inputs, Map<Long, String> outputs) {
-        hq.saveInterfaces(definition.getHostAddress(), interfaces);
-        hq.saveInformation(definition.getHostAddress(), interfaces, inputs, outputs);
     }
 
     private Map<Long, String> getBulk(Target target, Session snmp, OID base) throws IOException {
@@ -196,5 +203,9 @@ public class HostRunner implements Runnable{
         target.setTimeout(MAX_TIMEOUT);
         target.setVersion(SnmpConstants.version2c);
         return target;
+    }
+
+    public enum RESULT {
+        SUCCESS, FAILURE
     }
 }

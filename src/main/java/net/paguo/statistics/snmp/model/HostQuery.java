@@ -10,6 +10,7 @@ import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 
 /**
  * User: slava
@@ -206,6 +207,88 @@ public class HostQuery {
                 log.error(e);
             }
         }
+    }
+
+
+
+    public void saveInformation(Collection<HostResult> results) throws SQLException {
+        //stage one: save interfaces
+        DBProxy proxy = DBProxyFactory.getDBProxy();
+        Connection c = proxy.getConnection();
+        saveInterfaces(results, c);
+        //save uptimes
+        saveUptime(results, c);
+        //stage two: save inputs and outputs
+        log.debug("saveTraffic: >>>>");
+        int[] results1 = saveTraffic(results, c);
+        log.debug(results1.length + " records inserted for traffic total");
+        log.debug("saveTraffic:>>>>>");
+        c.close();
+        final long time = new java.util.Date().getTime();
+        for (HostResult result : results) {
+            saveLastCheck(result.getAddress().getHostAddress(), new Timestamp(time));
+        }
+    }
+
+    private void saveInterfaces(Collection<HostResult> results, Connection c) throws SQLException {
+        log.debug("saveInterfaces(): <<<<");
+        PreparedStatement psIf = c.prepareStatement(ADD_INTERFACE);
+
+        for (HostResult result : results) {
+            String hostAddress = result.getAddress().getHostAddress();
+            for (String iface : result.getInterfaces().values()) {
+                Long interfaceId = getInterfaceId(hostAddress, iface);
+                if (interfaceId == null){
+                    log.debug(MessageFormat.format("Adding interface {0} for device {1}", iface, hostAddress));
+                    psIf.setString(1, hostAddress);
+                    psIf.setString(2, iface);
+                    psIf.addBatch();
+                }
+            }
+        }
+        psIf.executeBatch();
+        psIf.close();
+        log.debug("saveInterfaces(): done >>>");
+    }
+
+    private void saveUptime(Collection<HostResult> results, Connection c) throws SQLException {
+        log.debug("saveUptime() " + "<<<");
+        PreparedStatement psUptime = null;
+        psUptime = c.prepareStatement(SAVE_UPTIME);
+        for (HostResult result : results) {
+            psUptime.setTimestamp(1, new Timestamp(new java.util.Date().getTime()));
+            psUptime.setLong(2, result.getUptime());
+            psUptime.setString(3, result.getAddress().getHostAddress());
+            psUptime.addBatch();
+        }
+        int[] r = psUptime.executeBatch();
+        log.debug("saveUptime() finished successfully for " + r.length + "records. >>>");
+    }
+
+    private int[] saveTraffic(Collection<HostResult> results, Connection c) throws SQLException {
+        PreparedStatement psTraffic = c.prepareStatement(INSERT_TRAFFIC);
+        for (HostResult result : results) {
+            String hostAddress = result.getAddress().getHostAddress();
+            Map<Long, String> interfaces = result.getInterfaces();
+            Timestamp now = new Timestamp(new java.util.Date().getTime());
+            Set<Long> indexes = interfaces.keySet();
+            for (Long index : indexes) {
+                String iface = interfaces.get(index);
+                Long incoming = Long.parseLong(result.getInputs().get(index));
+                Long outcoming = Long.parseLong(result.getOutputs().get(index));
+                if (!checkTrafficRecordExists(hostAddress, iface, now)) {
+                    psTraffic.setString(1, hostAddress);
+                    psTraffic.setString(2, iface);
+                    psTraffic.setLong(3, incoming);
+                    psTraffic.setLong(4, outcoming);
+                    psTraffic.setTimestamp(5, now);
+                    psTraffic.addBatch();
+                }
+            }
+        }
+        int[] results1 = psTraffic.executeBatch();
+        psTraffic.close();
+        return results1;
     }
 
     public void saveInformation(String hostAddress, Map<Long, String> interfaces,

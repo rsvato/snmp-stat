@@ -5,16 +5,16 @@
     <artifactId>snmp-stat</artifactId>
     <packaging>jar</packaging>
     <name>snm-stat-app</name>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <url>http://ns2.paguo.net</url>
     <build>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
                     <target>1.5</target>
                     <encoding>UTF-8</encoding>
+                    <source>1.5</source>
                     <sourceEncoding>UTF-8</sourceEncoding>
                 </configuration>
             </plugin>
@@ -30,7 +30,7 @@
               <configuration>
               <archive>
                 <manifest>
-                  <mainClass>net.paguo.statistics.snmp.Main</mainClass>
+                  <mainClass>net.paguo.statistics.snmp.MainOld</mainClass>
                   <addClasspath>true</addClasspath>
                 </manifest>
               </archive>
