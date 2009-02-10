@@ -48,6 +48,7 @@ public class DBProxyFactory {
         InputStream is = new FileInputStream(propertyFile);
         props = new Properties();
         props.load(is);
+        is.close();
         return props;
     }
 

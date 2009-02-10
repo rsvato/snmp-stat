@@ -2,6 +2,13 @@ package net.paguo.statistics.snmp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
+import static org.apache.commons.io.FileUtils.writeLines;
 import net.paguo.statistics.snmp.model.HostQuery;
 import net.paguo.statistics.snmp.model.HostDefinition;
 import net.paguo.statistics.snmp.model.HostResult;
@@ -11,6 +18,8 @@ import net.paguo.statistics.snmp.commands.HostCallable;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Paraller query/sequential update implementation
@@ -22,7 +31,7 @@ import java.util.concurrent.*;
 public class Main {
     public static final Log log = LogFactory.getLog(Main.class);
 
-    public static void main(String args[]) throws SQLException {
+    public static void main(String args[]) throws SQLException, IOException {
         log.debug("Starting main thread. Getting hosts");
         long start = System.currentTimeMillis();
         HostQuery q = new HostQuery();
@@ -82,9 +91,46 @@ public class Main {
 
         try {
             q.saveInformation(results);
+            dumpResults(results);
         } catch (SQLException e) {
+            log.error(e);
+        } catch (ConfigurationException e) {
             log.error(e);
         }
         log.debug("Finished.");
+    }
+
+    private static void dumpResults(Collection<HostResult> results) throws ConfigurationException, IOException {
+        long time = System.currentTimeMillis();
+        Configuration configuration = new PropertiesConfiguration(System.getProperty("dbprops"));
+        String s = configuration.getString("dump.dir");
+        if (StringUtils.isEmpty(s)){
+            log.error("Cannot find dump directory");
+            return;
+        }
+
+        String filename = "dump-" + String.valueOf(time);
+        File f = new File(s.trim() + "/" + filename.trim());
+        if (f.exists()){
+            log.error("Dump file already exists");
+            return;
+        }
+        Collection<String> lines = new LinkedList<String>();
+        for (HostResult result : results) {
+            for (Long ifaceId : result.getInterfaces().keySet()) {
+                String ifaceName = result.getInterfaces().get(ifaceId);
+                String input = result.getInputs().get(ifaceId);
+                String output = result.getOutputs().get(ifaceId);
+                String cisco = result.getAddress().getHostAddress();
+                String ifacePrint = ifaceName.replaceAll("\\W", "-");
+                lines.add(String.format("%s|%s|%s|%s|%d", cisco, ifacePrint, input, output, time));
+            }
+
+            result.getInputs();
+            result.getOutputs();
+            result.getInterfaces();
+        }
+        writeLines(f, lines);
+
     }
 }
