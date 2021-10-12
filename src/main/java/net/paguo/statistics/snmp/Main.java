@@ -1,20 +1,18 @@
 package net.paguo.statistics.snmp;
 
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.FileUtils;
 import static org.apache.commons.io.FileUtils.writeLines;
 import net.paguo.statistics.snmp.model.HostQuery;
 import net.paguo.statistics.snmp.model.HostDefinition;
 import net.paguo.statistics.snmp.model.HostResult;
-import net.paguo.statistics.snmp.commands.HostRunner;
 import net.paguo.statistics.snmp.commands.HostCallable;
 
+import java.io.FileReader;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
@@ -31,7 +29,7 @@ import java.io.IOException;
 public class Main {
     public static final Log log = LogFactory.getLog(Main.class);
 
-    public static void main(String args[]) throws SQLException, IOException {
+    public static void main(String args[]) throws IOException {
         log.debug("Starting main thread. Getting hosts");
         long start = System.currentTimeMillis();
         HostQuery q = new HostQuery();
@@ -55,7 +53,7 @@ public class Main {
             do {
                 log.debug("Awaiting termination");
                 Thread.sleep(600 - i);
-                i = 1 + 10;
+                i += 10;
                 if (i >= 600){
                     log.debug("Resetting timer to zero");
                     i = 0;
@@ -70,9 +68,7 @@ public class Main {
         for (Future<HostResult> future : futures) {
             try {
                 results.add(future.get());
-            } catch (InterruptedException e) {
-                log.error(e);
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 log.error(e);
             }
         }
@@ -102,14 +98,16 @@ public class Main {
 
     private static void dumpResults(Collection<HostResult> results) throws ConfigurationException, IOException {
         long time = System.currentTimeMillis();
-        Configuration configuration = new PropertiesConfiguration(System.getProperty("dbprops"));
+        String dbprops = System.getProperty("dbprops");
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.read(new FileReader(dbprops + ".properties"));
         String s = configuration.getString("dump.dir");
         if (StringUtils.isEmpty(s)){
             log.error("Cannot find dump directory");
             return;
         }
 
-        String filename = "dump-" + String.valueOf(time);
+        String filename = "dump-" + time;
         File f = new File(s.trim() + "/" + filename.trim());
         if (f.exists()){
             log.error("Dump file already exists");
