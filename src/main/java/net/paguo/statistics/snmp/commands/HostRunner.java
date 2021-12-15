@@ -6,6 +6,8 @@ import net.paguo.statistics.snmp.model.HostDefinition;
 import net.paguo.statistics.snmp.model.HostQuery;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Session;
@@ -40,8 +42,8 @@ import java.util.Vector;
  */
 @Deprecated
 public class HostRunner implements Runnable{
-    private static final Log log = LogFactory.getLog(HostRunner.class);
-    private HostDefinition definition;
+    private static final Logger log = LoggerFactory.getLogger(HostRunner.class);
+    private final HostDefinition definition;
     private static final long MAX_TIMEOUT = 2000l;
     private static final OID UPTIME_OID = new OID(".1.3.6.1.2.1.1.3.0");
     private static final OID INTERFACES_OID = new OID(".1.3.6.1.2.1.2.2.1.2");
@@ -56,10 +58,10 @@ public class HostRunner implements Runnable{
         try {
             long start = System.currentTimeMillis();
             doQuery();
-            log.debug(definition.getHostAddress() + " session time: "
-                    + (System.currentTimeMillis() - start) + " ms");
+            long runningTime = System.currentTimeMillis() - start;
+            log.debug("{} session time: {} ms", definition.getHostAddress(), runningTime);
         } catch (IOException e) {
-            log.error(e);
+            log.error("IOException during SNMP query", e);
         }
     }
 

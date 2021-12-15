@@ -7,6 +7,8 @@ import net.paguo.statistics.snmp.model.HostQuery;
 import net.paguo.statistics.snmp.model.HostResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Session;
@@ -41,7 +43,7 @@ import java.util.concurrent.ConcurrentMap;
  * Version: $Id$
  */
 public class HostCallable implements Callable<HostResult> {
-    private static final Log log = LogFactory.getLog(HostCallable.class);
+    private static final Logger log = LoggerFactory.getLogger(HostCallable.class);
     private HostDefinition definition;
     private static final long MAX_TIMEOUT = 2000l;
     private static final OID UPTIME_OID = new OID(".1.3.6.1.2.1.1.3.0");
@@ -65,7 +67,7 @@ public class HostCallable implements Callable<HostResult> {
                     + (System.currentTimeMillis() - start) + " ms");
         } catch (IOException e) {
             this.result = RESULT.FAILURE;
-            log.error(e);
+            log.error("Error getting result for def {}", definition, e);
         }finally{
             registry.put(definition.getHostAddress(), this.result);
         }
@@ -83,7 +85,7 @@ public class HostCallable implements Callable<HostResult> {
         PDU response = evtx.getResponse();
 
         if (response != null && response.getErrorStatus() == 0){
-            Vector bindings = response.getVariableBindings();
+            Vector<?> bindings = response.getVariableBindings();
             if (bindings.size() > 0) {
                 VariableBinding binding = (VariableBinding) bindings.get(0);
                 Variable variable = binding.getVariable();
@@ -136,7 +138,7 @@ public class HostCallable implements Callable<HostResult> {
             result.put(name, count == null ? 1 : count + 1);
         }
 
-        final Set<String> doubled = new HashSet<String>();
+        final Set<String> doubled = new HashSet<>();
         for (String s : result.keySet()) {
             Integer count = result.get(s);
             if (count > 1){
@@ -177,7 +179,7 @@ public class HostCallable implements Callable<HostResult> {
         VariableBinding binding = null;
         PDU ifacesResponse = evtx.getResponse();
         if (ifacesResponse != null && ifacesResponse.getErrorStatus() == 0){
-            Vector bindings = ifacesResponse.getVariableBindings();
+            Vector<?> bindings = ifacesResponse.getVariableBindings();
             binding = (VariableBinding) bindings.get(0);
         }
         return binding;
@@ -191,8 +193,7 @@ public class HostCallable implements Callable<HostResult> {
     }
 
     private Address createAddress() {
-        return GenericAddress.parse("udp:"
-				+ definition.getHostAddress() + "/161");
+        return GenericAddress.parse("udp:" + definition.getHostAddress() + "/161");
     }
 
     private CommunityTarget createCommunity(Address snmpAddress) {

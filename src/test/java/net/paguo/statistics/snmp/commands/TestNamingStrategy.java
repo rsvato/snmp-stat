@@ -4,6 +4,8 @@ import net.paguo.statistics.snmp.model.HostDefinition;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,8 @@ public class TestNamingStrategy {
     private static Map<Long, String> normalInterfaces;
     private static Map<Long, String> doubledInterfaces;
     private static HostDefinition definition;
+
+    private final static Logger logger = LoggerFactory.getLogger(TestNamingStrategy.class);
 
     @Before
     public void init(){
@@ -53,6 +57,7 @@ public class TestNamingStrategy {
        Assert.assertEquals("foo-ix2", ifs.get(2L));
        Assert.assertEquals("foo-ix3", ifs.get(3L));
        Assert.assertEquals("foo-ix4", ifs.get(4L));
+       logger.info("All done");
     }
 
 }

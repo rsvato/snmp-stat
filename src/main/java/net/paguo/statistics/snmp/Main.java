@@ -1,16 +1,15 @@
 package net.paguo.statistics.snmp;
 
-import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import static org.apache.commons.io.FileUtils.writeLines;
 import net.paguo.statistics.snmp.model.HostQuery;
 import net.paguo.statistics.snmp.model.HostDefinition;
 import net.paguo.statistics.snmp.model.HostResult;
 import net.paguo.statistics.snmp.commands.HostCallable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileReader;
 import java.sql.SQLException;
@@ -27,7 +26,7 @@ import java.io.IOException;
  * Version: $Id$
  */
 public class Main {
-    public static final Log log = LogFactory.getLog(Main.class);
+    public static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String args[]) throws IOException {
         log.debug("Starting main thread. Getting hosts");
@@ -35,9 +34,9 @@ public class Main {
         HostQuery q = new HostQuery();
         Set<HostDefinition> hostDefinitions = q.getDefinitions();
 
-        final List<Future<HostResult>> futures = new LinkedList<Future<HostResult>>();
+        final List<Future<HostResult>> futures = new LinkedList<>();
 
-        Map<String, HostCallable.RESULT> registry = new ConcurrentHashMap<String, HostCallable.RESULT>();
+        Map<String, HostCallable.RESULT> registry = new ConcurrentHashMap<>();
 
         ExecutorService pool = Executors.newFixedThreadPool(hostDefinitions.size());
         for (HostDefinition hd : hostDefinitions) {
@@ -69,7 +68,7 @@ public class Main {
             try {
                 results.add(future.get());
             } catch (InterruptedException | ExecutionException e) {
-                log.error(e);
+                log.error("Error when getting results", e);
             }
         }
         for (Iterator<HostResult> it = results.iterator(); it.hasNext();) {
@@ -79,8 +78,8 @@ public class Main {
             final boolean hasOutputs = result.getOutputs() != null && !result.getOutputs().isEmpty();
             final boolean hasUptime = result.getUptime() > 0;
             if (!hasUptime || !hasInterfaces || !hasInputs || !hasOutputs) {
-                log.error(result.getAddress().getHostAddress() + " does not have required information, hence will not" +
-                        " be updated");
+                String hostAddress = result.getAddress().getHostAddress();
+                log.error("{} does not have required information, hence will not be updated", hostAddress);
                 it.remove();
             }
         }
@@ -88,10 +87,8 @@ public class Main {
         try {
             q.saveInformation(results);
             dumpResults(results);
-        } catch (SQLException e) {
-            log.error(e);
-        } catch (ConfigurationException e) {
-            log.error(e);
+        } catch (SQLException | ConfigurationException e) {
+            log.error("Error saving results", e);
         }
         log.debug("Finished.");
     }

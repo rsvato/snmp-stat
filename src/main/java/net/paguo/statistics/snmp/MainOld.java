@@ -1,10 +1,10 @@
 package net.paguo.statistics.snmp;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import net.paguo.statistics.snmp.model.HostQuery;
 import net.paguo.statistics.snmp.model.HostDefinition;
 import net.paguo.statistics.snmp.commands.HostRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.Set;
@@ -17,7 +17,7 @@ import java.util.Set;
  */
 @Deprecated
 public class MainOld {
-    public static final Log log = LogFactory.getLog(MainOld.class);
+    public static final Logger log = LoggerFactory.getLogger(MainOld.class);
 
     public static void main(String args[]) throws SQLException, InterruptedException {
         Thread t = new Thread(new Runner());

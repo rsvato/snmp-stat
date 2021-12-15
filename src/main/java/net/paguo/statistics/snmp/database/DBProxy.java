@@ -1,13 +1,12 @@
 package net.paguo.statistics.snmp.database;
 
+import net.paguo.statistics.snmp.model.HostDefinition;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
-
-import net.paguo.statistics.snmp.model.HostDefinition;
 
 /**
  * User: slava
@@ -16,19 +15,7 @@ import net.paguo.statistics.snmp.model.HostDefinition;
  * Version: $Id$
  */
 public class DBProxy {
-    private DataSource ds;
-
-    DBProxy() {
-        ds = new PGSimpleDataSource();
-        String dbhost = System.getProperty("dbhost");
-        String database = System.getProperty("database");
-        String username = "root";
-        String password = "test12~";
-        ((PGSimpleDataSource) ds).setUser(username);
-        ((PGSimpleDataSource) ds).setPassword(password);
-        ((PGSimpleDataSource) ds).setServerName(dbhost);
-        ((PGSimpleDataSource) ds).setDatabaseName(database);
-    }
+    private final DataSource ds;
 
     DBProxy(Properties props) {
         ds = new PGSimpleDataSource();
@@ -38,7 +25,7 @@ public class DBProxy {
         String password = props.getProperty(DBProxyFactory.PASSWORD_KEY);
         ((PGSimpleDataSource) ds).setUser(username);
         ((PGSimpleDataSource) ds).setPassword(password);
-        ((PGSimpleDataSource) ds).setServerName(dbhost);
+        ((PGSimpleDataSource) ds).setServerNames(new String[] {dbhost});
         ((PGSimpleDataSource) ds).setDatabaseName(database);
     }
 
@@ -46,7 +33,7 @@ public class DBProxy {
         return ds.getConnection();
     }
 
-    public void closeConnection(Connection c) throws SQLException {
+    public static void closeConnection(Connection c) throws SQLException {
         c.close();
     }
 

@@ -2,15 +2,15 @@ package net.paguo.statistics.snmp.model;
 
 import net.paguo.statistics.snmp.database.DBProxy;
 import net.paguo.statistics.snmp.database.DBProxyFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collection;
 
 /**
  * User: slava
@@ -28,11 +28,11 @@ public class HostQuery {
     private static final String CHECK_TRAFFIC = "select count(*) from tr where cisco = ? and interface =? and dt = ?";
 
 
-    private static final Log log = LogFactory.getLog(HostQuery.class);
+    private static final Logger log = LoggerFactory.getLogger(HostQuery.class);
     private static final String LAST_CHECK_SAVE = "insert into last_snmp_checks (cisco, last_check) values (?, ?)";
 
     public boolean checkTrafficRecordExists(String hostAddress, String iface, Timestamp now){
-        log.debug("checkTrafficRecordExists()" + "<<<");
+        log.debug("checkTrafficRecordExists() <<<");
         DBProxy proxy = DBProxyFactory.getDBProxy();
         Connection c = null;
         PreparedStatement ps = null;
@@ -49,21 +49,9 @@ public class HostQuery {
                 result = rs.getInt(1) > 1;
             }
         } catch (SQLException e) {
-            log.error(e);
+            log.error("DBError", e);
         } finally {
-             try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (ps != null) {
-                    ps.close();
-                }
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                log.error(e);
-            }
+            closeAll(c, ps, rs);
         }
         return result;
     }
@@ -86,21 +74,9 @@ public class HostQuery {
                 result.add(element);
             }
         } catch (SQLException e) {
-            log.error(e);
+            log.error("DBError", e);
         } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (ps != null) {
-                    ps.close();
-                }
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                log.error(e);
-            }
+            closeAll(c, ps, rs);
         }
         log.debug("getHostList() " + ">>>");
         return result;
@@ -119,7 +95,7 @@ public class HostQuery {
             ps.setString(3, address);
             ps.executeUpdate();
         } catch (SQLException e) {
-            log.error(e);
+            log.error("DBError", e);
         } finally {
             try {
                 if (ps != null) {
@@ -129,7 +105,7 @@ public class HostQuery {
                     c.close();
                 }
             } catch (SQLException e) {
-                log.error(e);
+                log.error("DBError", e);
             }
         }
         log.debug("saveUptime() " + ">>>");
@@ -151,23 +127,31 @@ public class HostQuery {
                 result = rs.getLong(1);
             }
         } catch (SQLException e) {
-            log.error(e);
+            log.error("DBError", e);
         } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (ps != null) {
-                    ps.close();
-                }
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                log.error(e);
-            }
+            closeAll(c, ps, rs);
         }
         return result;
+    }
+
+    private void closeAll(Connection connection, PreparedStatement preparedStatement) {
+        closeAll(connection, preparedStatement, null);
+    }
+
+    private void closeAll(Connection c, PreparedStatement ps, ResultSet rs) {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            if (c != null) {
+                c.close();
+            }
+        } catch (SQLException e) {
+            log.error("DBError", e);
+        }
     }
 
     public void saveInterfaces(String hostAddress, Map<Long, String> interfaces) {
@@ -194,18 +178,9 @@ public class HostQuery {
             ps.setString(2, iface);
             ps.executeUpdate();
         } catch (SQLException e) {
-            log.error(e);
+            log.error("DBError", e);
         } finally {
-            try {
-                if (ps != null) {
-                    ps.close();
-                }
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                log.error(e);
-            }
+            closeAll(c, ps);
         }
     }
 
@@ -321,16 +296,7 @@ public class HostQuery {
         } catch (SQLException e) {
             log.error(hostAddress + " " + e);
         } finally {
-            try {
-                if (ps != null) {
-                    ps.close();
-                }
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                log.error(e);
-            }
+            closeAll(c, ps, null);
         }
     }
 
@@ -347,16 +313,7 @@ public class HostQuery {
         } catch (SQLException e) {
             log.error(hostAddress + " cannot save last check time " + e.getMessage());
         } finally {
-            try {
-                if (ps != null) {
-                    ps.close();
-                }
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                log.error(e);
-            }
+            closeAll(c, ps, null);
         }
     }
 }
