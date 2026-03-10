@@ -3,9 +3,10 @@ package net.paguo.statistics.snmp.database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -45,19 +46,20 @@ public class DBProxyFactory {
 
     private static Properties loadFileProperties(String propertyFile) throws IOException {
         Properties props;
-        InputStream is = new FileInputStream(propertyFile);
-        props = new Properties();
-        props.load(is);
-        is.close();
+        try (InputStream is = Files.newInputStream(Paths.get(propertyFile))) {
+            props = new Properties();
+            props.load(is);
+        }
         return props;
     }
 
     private static Properties loadDefaultProperties() {
         Properties props = new Properties();
-        props.put(HOST_KEY, "localhost");
-        props.put(DATABASE_KEY, "traffic");
-        props.put(USER_KEY, "root");
-        props.put(PASSWORD_KEY, "test12~");
+        try (InputStream defaultSource = DBProxyFactory.class.getClassLoader().getResourceAsStream("default.properties")) {
+            props.load(defaultSource);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return props;
     }
 
