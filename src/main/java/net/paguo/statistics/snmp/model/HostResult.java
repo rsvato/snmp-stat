@@ -59,4 +59,12 @@ public class HostResult {
     public void setOutputs(Map<Long, String> outputs) {
         this.outputs = outputs;
     }
+
+    public boolean isValid() {
+        final boolean hasInterfaces = getInterfaces() != null && !getInterfaces().isEmpty();
+        final boolean hasInputs = getInputs() != null && !getInputs().isEmpty();
+        final boolean hasOutputs = getOutputs() != null && !getOutputs().isEmpty();
+        final boolean hasUptime = getUptime() > 0;
+        return hasUptime && hasInterfaces && hasInputs && hasOutputs;
+    }
 }

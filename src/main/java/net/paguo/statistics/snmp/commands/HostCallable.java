@@ -3,10 +3,7 @@ package net.paguo.statistics.snmp.commands;
 import net.paguo.statistics.snmp.commands.impl.DoubledRenameStrategyImpl;
 import net.paguo.statistics.snmp.commands.impl.NormalRenameStrategyImpl;
 import net.paguo.statistics.snmp.model.HostDefinition;
-import net.paguo.statistics.snmp.model.HostQuery;
 import net.paguo.statistics.snmp.model.HostResult;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.CommunityTarget;
@@ -34,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * User: slava
@@ -44,13 +40,13 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class HostCallable implements Callable<HostResult> {
     private static final Logger log = LoggerFactory.getLogger(HostCallable.class);
-    private HostDefinition definition;
-    private static final long MAX_TIMEOUT = 2000l;
+    private final HostDefinition definition;
+    private static final long MAX_TIMEOUT = 2000L;
     private static final OID UPTIME_OID = new OID(".1.3.6.1.2.1.1.3.0");
     private static final OID INTERFACES_OID = new OID(".1.3.6.1.2.1.2.2.1.2");
     private static final OID INCOME_OID = new OID(".1.3.6.1.2.1.2.2.1.10");
     private static final OID OUTCOME_OID = new OID(".1.3.6.1.2.1.2.2.1.16");
-    private Map<String, RESULT> registry;
+    private final Map<String, RESULT> registry;
     private RESULT result;
 
     public HostCallable(HostDefinition hostDefinition, Map<String, RESULT> registry){
@@ -86,8 +82,8 @@ public class HostCallable implements Callable<HostResult> {
 
         if (response != null && response.getErrorStatus() == 0){
             Vector<?> bindings = response.getVariableBindings();
-            if (bindings.size() > 0) {
-                VariableBinding binding = (VariableBinding) bindings.get(0);
+            if (!bindings.isEmpty()) {
+                VariableBinding binding = (VariableBinding) bindings.getFirst();
                 Variable variable = binding.getVariable();
                 long l = variable.toLong();
                 def.setUptime(l);

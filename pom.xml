@@ -7,35 +7,7 @@
     <name>snm-stat-app</name>
     <version>1.0.1</version>
     <url>http://ns2.paguo.net</url>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <target>21</target>
-                    <source>21</source>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-              <artifactId>maven-jar-plugin</artifactId>
-              <configuration>
-              <archive>
-                <manifest>
-                  <mainClass>net.paguo.statistics.snmp.Main</mainClass>
-                  <addClasspath>true</addClasspath>
-                </manifest>
-              </archive>
-              </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -79,11 +51,42 @@
             <version>1.8.1</version>
         </dependency>
     </dependencies>
-    <pluginRepositories>
-        <pluginRepository>
-              <id>mortbay-repo</id>
-              <name>mortbay-repo</name>
-              <url>http://www.mortbay.org/maven2/snapshot</url>
-        </pluginRepository>
-    </pluginRepositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <target>21</target>
+                    <source>21</source>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>net.paguo.statistics.snmp.Main</mainClass>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

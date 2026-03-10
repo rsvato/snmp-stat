@@ -1,0 +1,27 @@
+services:
+
+  traffic-db:
+    image: postgres:15-alpine
+    container_name: snmp_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: monitor_user
+      POSTGRES_PASSWORD: monitor_password
+      POSTGRES_DB: network_metrics
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  snmp-device:
+    image: tandrup/snmpsim
+    container_name: snmp_emulation
+    restart: always
+    ports:
+      - "161:161/udp"
+    volumes:
+      - ./snmp-data:/usr/local/snmpsim/data
+
+volumes:
+  postgres_data:
