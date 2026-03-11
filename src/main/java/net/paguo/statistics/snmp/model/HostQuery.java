@@ -105,10 +105,6 @@ public class HostQuery {
         return result;
     }
 
-    private void closeAll(Connection connection, PreparedStatement preparedStatement) {
-        closeAll(connection, preparedStatement, null);
-    }
-
     private void closeAll(Connection c, PreparedStatement ps, ResultSet rs) {
         try {
             if (rs != null) {
@@ -122,36 +118,6 @@ public class HostQuery {
             }
         } catch (SQLException e) {
             log.error("DBError", e);
-        }
-    }
-
-    public void saveInterfaces(String hostAddress, Map<Long, String> interfaces) {
-        log.debug("saveInterfaces(): <<<");
-        for (String iface : interfaces.values()) {
-            Long interfaceId = getInterfaceId(hostAddress, iface);
-            if (interfaceId == null){
-                log.debug(MessageFormat.format("Adding interface {0} for device {1}", iface, hostAddress));
-                addInterface(hostAddress, iface);
-            }
-        }
-        log.debug("saveInterfaces(): >>>");
-
-    }
-
-    private void addInterface(String hostAddress, String iface) {
-        DBProxy proxy = DBProxyFactory.getDBProxy();
-        Connection c = null;
-        PreparedStatement ps = null;
-        try {
-            c = proxy.getConnection();
-            ps = c.prepareStatement(ADD_INTERFACE);
-            ps.setString(1, hostAddress);
-            ps.setString(2, iface);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            log.error("DBError", e);
-        } finally {
-            closeAll(c, ps);
         }
     }
 
