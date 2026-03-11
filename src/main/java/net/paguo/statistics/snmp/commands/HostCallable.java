@@ -59,8 +59,7 @@ public class HostCallable implements Callable<HostResult> {
         try {
             long start = System.currentTimeMillis();
             doQuery(result);
-            log.debug(definition.getHostAddress() + " session time: "
-                    + (System.currentTimeMillis() - start) + " ms");
+            log.debug("{} session time: {} ms", definition.getHostAddress(), System.currentTimeMillis() - start);
         } catch (IOException e) {
             this.result = RESULT.FAILURE;
             log.error("Error getting result for def {}", definition, e);
@@ -106,7 +105,7 @@ public class HostCallable implements Callable<HostResult> {
     }
 
     Map<Long,String> checkInterfaces(Map<Long, String> interfaces) {
-        Map<Long, String>  result = new HashMap<Long, String>();
+        Map<Long, String>  result = new HashMap<>();
         RenameStrategy normalStrategy = new NormalRenameStrategyImpl();
         RenameStrategy doubleStrategy = new DoubledRenameStrategyImpl();
         Set<String> doubled = countEntries(interfaces.values());
@@ -127,11 +126,10 @@ public class HostCallable implements Callable<HostResult> {
     }
 
     private Set<String> countEntries(Collection<String> names){
-        Map<String, Integer> result = new HashMap<String, Integer>();
+        Map<String, Integer> result = new HashMap<>();
 
         for (String name : names) {
-            Integer count = result.get(name);
-            result.put(name, count == null ? 1 : count + 1);
+            result.compute(name, (k, count) -> count == null ? 1 : count + 1);
         }
 
         final Set<String> doubled = new HashSet<>();
@@ -152,12 +150,16 @@ public class HostCallable implements Callable<HostResult> {
     private Map<Long, String> getBulk(Target target, Session snmp, OID base) throws IOException {
         Map<Long, String> results = new HashMap<Long, String>();
         VariableBinding binding = runGetNext(target, snmp, base);
-        while(binding != null && child(base, binding.getOid())) {
+        while(binding != null && ! binding.isException() && child(base, binding.getOid())) {
             OID oid = binding.getOid();
             Long index = (long) oid.get(oid.size() - 1);
             String result = binding.getVariable().toString();
             results.put(index, result);
             binding = runGetNext(target, snmp, oid);
+            if (binding == null || binding.isException()) {
+                 log.error("GETNEXT gives exceptional or no result for OID {}", oid);
+                 break;
+            }
         }
         return results;
     }
@@ -176,7 +178,7 @@ public class HostCallable implements Callable<HostResult> {
         PDU ifacesResponse = evtx.getResponse();
         if (ifacesResponse != null && ifacesResponse.getErrorStatus() == 0){
             Vector<?> bindings = ifacesResponse.getVariableBindings();
-            binding = (VariableBinding) bindings.get(0);
+            binding = (VariableBinding) bindings.getFirst();
         }
         return binding;
     }

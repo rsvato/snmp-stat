@@ -59,7 +59,7 @@ public class HostQuery {
     public Set<HostDefinition> getDefinitions() {
         log.debug("getHostList() " + "<<<");
         DBProxy proxy = DBProxyFactory.getDBProxy();
-        Set<HostDefinition> result = new HashSet<HostDefinition>();
+        Set<HostDefinition> result = new HashSet<>();
         Connection c = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -80,35 +80,6 @@ public class HostQuery {
         }
         log.debug("getHostList() " + ">>>");
         return result;
-    }
-
-    public void saveUptime(String address, long uptime) {
-        log.debug("saveUptime() " + "<<<");
-        DBProxy proxy = DBProxyFactory.getDBProxy();
-        Connection c = null;
-        PreparedStatement ps = null;
-        try {
-            c = proxy.getConnection();
-            ps = c.prepareStatement(SAVE_UPTIME);
-            ps.setTimestamp(1, new Timestamp(new java.util.Date().getTime()));
-            ps.setLong(2, uptime);
-            ps.setString(3, address);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            log.error("DBError", e);
-        } finally {
-            try {
-                if (ps != null) {
-                    ps.close();
-                }
-                if (c != null) {
-                    c.close();
-                }
-            } catch (SQLException e) {
-                log.error("DBError", e);
-            }
-        }
-        log.debug("saveUptime() " + ">>>");
     }
 
     private Long getInterfaceId(String hostAddress, String iface){
@@ -228,7 +199,7 @@ public class HostQuery {
 
     private void saveUptime(Collection<HostResult> results, Connection c) throws SQLException {
         log.debug("saveUptime() " + "<<<");
-        PreparedStatement psUptime = null;
+        PreparedStatement psUptime;
         psUptime = c.prepareStatement(SAVE_UPTIME);
         for (HostResult result : results) {
             psUptime.setTimestamp(1, new Timestamp(new java.util.Date().getTime()));
@@ -249,8 +220,8 @@ public class HostQuery {
             Set<Long> indexes = interfaces.keySet();
             for (Long index : indexes) {
                 String iface = interfaces.get(index);
-                Long incoming = Long.parseLong(result.getInputs().get(index));
-                Long outcoming = Long.parseLong(result.getOutputs().get(index));
+                long incoming = Long.parseLong(result.getInputs().get(index));
+                long outcoming = Long.parseLong(result.getOutputs().get(index));
                 if (!checkTrafficRecordExists(hostAddress, iface, now)) {
                     psTraffic.setString(1, hostAddress);
                     psTraffic.setString(2, iface);
@@ -266,40 +237,6 @@ public class HostQuery {
         return results1;
     }
 
-    public void saveInformation(String hostAddress, Map<Long, String> interfaces,
-                                Map<Long, String> inputs, Map<Long, String> outputs){
-        DBProxy proxy = DBProxyFactory.getDBProxy();
-        Connection c = null;
-        PreparedStatement ps = null;
-
-        try {
-            c = proxy.getConnection();
-            ps = c.prepareStatement(INSERT_TRAFFIC);
-            Timestamp now = new Timestamp(new java.util.Date().getTime());
-            Set<Long> indexes = interfaces.keySet();
-            for (Long index : indexes){
-                String iface = interfaces.get(index);
-                Long incoming = Long.parseLong(inputs.get(index));
-                Long outcoming = Long.parseLong(outputs.get(index));
-                if  (! checkTrafficRecordExists(hostAddress, iface, now)){
-                    ps.setString(1, hostAddress);
-                    ps.setString(2, iface);
-                    ps.setLong(3, incoming);
-                    ps.setLong(4, outcoming);
-                    ps.setTimestamp(5, now);
-                    ps.addBatch();
-                }
-            }
-            int[] results  = ps.executeBatch();
-            saveLastCheck(hostAddress, now);
-            log.debug(results.length + " records inserted for address " + hostAddress);
-        } catch (SQLException e) {
-            log.error(hostAddress + " " + e);
-        } finally {
-            closeAll(c, ps, null);
-        }
-    }
-
     private void saveLastCheck(String hostAddress, Timestamp now) {
         DBProxy proxy = DBProxyFactory.getDBProxy();
         Connection c = null;
@@ -311,7 +248,7 @@ public class HostQuery {
             ps.setTimestamp(2, now);
             ps.executeUpdate();
         } catch (SQLException e) {
-            log.error(hostAddress + " cannot save last check time " + e.getMessage());
+            log.error("Cannot save last check time for host {}", hostAddress, e);
         } finally {
             closeAll(c, ps, null);
         }

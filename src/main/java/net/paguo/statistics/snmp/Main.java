@@ -37,23 +37,24 @@ public class Main {
         final List<Future<HostResult>> futures = new ArrayList<>();
         Map<String, HostCallable.RESULT> registry = new ConcurrentHashMap<>();
 
-        ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
-        for (HostDefinition hd : hostDefinitions) {
-            final Future<HostResult> result = pool.submit(new HostCallable(hd, registry));
-            futures.add(result);
-        }
-
-        log.debug("Shutting pool down");
-        pool.shutdown();
-        log.debug("Waiting tasks to finish");
-
-        try {
-            boolean terminated = pool.awaitTermination(30, TimeUnit.SECONDS);
-            if (! terminated) {
-                pool.shutdownNow();
+        try (ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2)) {
+            for (HostDefinition hd : hostDefinitions) {
+                final Future<HostResult> result = pool.submit(new HostCallable(hd, registry));
+                futures.add(result);
             }
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
+
+            log.debug("Shutting pool down");
+            pool.shutdown();
+            log.debug("Waiting tasks to finish");
+
+            try {
+                boolean terminated = pool.awaitTermination(30, TimeUnit.SECONDS);
+                if (!terminated) {
+                    pool.shutdownNow();
+                }
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
         }
 
 
@@ -61,7 +62,6 @@ public class Main {
         log.debug("Collecting time: " + runTime);
 
         Collection<HostResult> results = new ArrayList<>();
-
         for (Future<HostResult> future : futures) {
             try {
                 results.add(future.get(5, TimeUnit.SECONDS));
@@ -83,17 +83,16 @@ public class Main {
 
     private static void dumpResults(Collection<HostResult> results) throws ConfigurationException, IOException {
         long time = System.currentTimeMillis();
-        String dbprops = System.getProperty("dbprops");
-        PropertiesConfiguration configuration = new PropertiesConfiguration();
-        configuration.read(new FileReader(dbprops + ".properties"));
-        String s = configuration.getString("dump.dir", Files.createTempDirectory("out-").toString());
+        PropertiesConfiguration configuration = getPropertiesConfiguration();
+        String dumpDirectory = configuration.getString("dump.dir", Files.createTempDirectory("out-").toString());
         String filename = "dump-" + time;
-        File f = new File(s.trim() + "/" + filename.trim());
+        File f = new File(dumpDirectory.trim(), filename.trim());
         if (f.exists()){
             log.error("Dump file already exists");
             return;
         }
         Collection<String> lines = new ArrayList<>();
+        log.info("Dumping traffic information to file {}", f.getAbsolutePath());
         for (HostResult result : results) {
             for (Long ifaceId : result.getInterfaces().keySet()) {
                 String ifaceName = result.getInterfaces().get(ifaceId);
@@ -106,5 +105,15 @@ public class Main {
         }
         writeLines(f, lines);
 
+    }
+
+    private static PropertiesConfiguration getPropertiesConfiguration() throws ConfigurationException, IOException {
+        String dbprops = System.getProperty("dbprops");
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        File f  = new File(dbprops + ".properties");
+        if (f.exists()) {
+            configuration.read(new FileReader(f));
+        }
+        return configuration;
     }
 }

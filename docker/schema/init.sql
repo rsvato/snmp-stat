@@ -480,6 +480,12 @@ CREATE TABLE user_perm (
     grp bigint
 );
 
+CREATE TABLE last_snmp_checks (
+    id serial,
+    cisco varchar(64) not null,
+    last_check timestamp without time zone
+);
+
 
 ALTER TABLE public.user_perm OWNER TO monitor_user;
 
