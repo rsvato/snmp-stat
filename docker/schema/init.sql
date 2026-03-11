@@ -17,7 +17,7 @@ COMMENT ON SCHEMA public IS 'Standard public schema';
 -- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: -; Owner:
 --
 
-CREATE PROCEDURAL LANGUAGE plpgsql;
+-- CREATE PROCEDURAL LANGUAGE plpgsql;
 
 
 SET search_path = public, pg_catalog;
@@ -26,26 +26,26 @@ SET search_path = public, pg_catalog;
 -- Name: plpgsql_call_handler(); Type: FUNCTION; Schema: public; Owner: root
 --
 
-CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
-    AS '$libdir/plpgsql', 'plpgsql_call_handler'
-    LANGUAGE c;
+-- CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
+--    AS '$libdir/plpgsql', 'plpgsql_call_handler'
+--    LANGUAGE c;
 
 
-ALTER FUNCTION public.plpgsql_call_handler() OWNER TO root;
+-- ALTER FUNCTION public.plpgsql_call_handler() OWNER TO root;
 
 --
 -- Name: plpgsql_validator(oid); Type: FUNCTION; Schema: public; Owner: root
 --
 
-CREATE FUNCTION plpgsql_validator(oid) RETURNS void
-    AS '$libdir/plpgsql', 'plpgsql_validator'
-    LANGUAGE c;
+--CREATE FUNCTION plpgsql_validator(oid) RETURNS void
+--    AS '$libdir/plpgsql', 'plpgsql_validator'
+--    LANGUAGE c;
 
 
-ALTER FUNCTION public.plpgsql_validator(oid) OWNER TO root;
+-- ALTER FUNCTION public.plpgsql_validator(oid) OWNER TO monitor_user;
 
 --
--- Name: _a_id_seq; Type: SEQUENCE; Schema: public; Owner: root
+-- Name: _a_id_seq; Type: SEQUENCE; Schema: public; Owner: monitor_user
 --
 
 CREATE SEQUENCE _a_id_seq
@@ -55,14 +55,14 @@ CREATE SEQUENCE _a_id_seq
     CACHE 1;
 
 
-ALTER TABLE public._a_id_seq OWNER TO root;
+ALTER TABLE public._a_id_seq OWNER TO monitor_user;
 
 SET default_tablespace = '';
 
-SET default_with_oids = true;
+--SET default_with_oids = true;
 
 --
--- Name: addresses; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: addresses; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE addresses (
@@ -79,10 +79,10 @@ CREATE TABLE addresses (
 );
 
 
-ALTER TABLE public.addresses OWNER TO root;
+ALTER TABLE public.addresses OWNER TO monitor_user;
 
 --
--- Name: aggreg; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: aggreg; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE aggreg (
@@ -95,10 +95,10 @@ CREATE TABLE aggreg (
 );
 
 
-ALTER TABLE public.aggreg OWNER TO root;
+ALTER TABLE public.aggreg OWNER TO monitor_user;
 
 --
--- Name: tr; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: tr; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE tr (
@@ -111,20 +111,20 @@ CREATE TABLE tr (
 );
 
 
-ALTER TABLE public.tr OWNER TO root;
+ALTER TABLE public.tr OWNER TO monitor_user;
 
 --
--- Name: c_i; Type: VIEW; Schema: public; Owner: root
+-- Name: c_i; Type: VIEW; Schema: public; Owner: monitor_user
 --
 
 CREATE VIEW c_i AS
     SELECT DISTINCT tr.cisco, tr.interface FROM tr ORDER BY tr.cisco, tr.interface;
 
 
-ALTER TABLE public.c_i OWNER TO root;
+ALTER TABLE public.c_i OWNER TO monitor_user;
 
 --
--- Name: cisco_iface; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: cisco_iface; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE cisco_iface (
@@ -134,10 +134,10 @@ CREATE TABLE cisco_iface (
 );
 
 
-ALTER TABLE public.cisco_iface OWNER TO root;
+ALTER TABLE public.cisco_iface OWNER TO monitor_user;
 
 --
--- Name: cl; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: cl; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE cl (
@@ -150,12 +150,12 @@ CREATE TABLE cl (
 );
 
 
-ALTER TABLE public.cl OWNER TO root;
+ALTER TABLE public.cl OWNER TO monitor_user;
 
 SET default_with_oids = false;
 
 --
--- Name: cl_deleted; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: cl_deleted; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE cl_deleted (
@@ -169,12 +169,12 @@ CREATE TABLE cl_deleted (
 );
 
 
-ALTER TABLE public.cl_deleted OWNER TO root;
+ALTER TABLE public.cl_deleted OWNER TO monitor_user;
 
-SET default_with_oids = true;
+--SET default_with_oids = true;
 
 --
--- Name: client; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: client; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE client (
@@ -184,10 +184,10 @@ CREATE TABLE client (
 );
 
 
-ALTER TABLE public.client OWNER TO root;
+ALTER TABLE public.client OWNER TO monitor_user;
 
 --
--- Name: client1; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: client1; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE client1 (
@@ -197,10 +197,10 @@ CREATE TABLE client1 (
 );
 
 
-ALTER TABLE public.client1 OWNER TO root;
+ALTER TABLE public.client1 OWNER TO monitor_user;
 
 --
--- Name: client_group; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: client_group; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE client_group (
@@ -210,10 +210,10 @@ CREATE TABLE client_group (
 );
 
 
-ALTER TABLE public.client_group OWNER TO root;
+ALTER TABLE public.client_group OWNER TO monitor_user;
 
 --
--- Name: client_ntraffic; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: client_ntraffic; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE client_ntraffic (
@@ -225,10 +225,10 @@ CREATE TABLE client_ntraffic (
 );
 
 
-ALTER TABLE public.client_ntraffic OWNER TO root;
+ALTER TABLE public.client_ntraffic OWNER TO monitor_user;
 
 --
--- Name: clients_groups; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: clients_groups; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE clients_groups (
@@ -237,10 +237,10 @@ CREATE TABLE clients_groups (
 );
 
 
-ALTER TABLE public.clients_groups OWNER TO root;
+ALTER TABLE public.clients_groups OWNER TO monitor_user;
 
 --
--- Name: contact_info; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: contact_info; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE contact_info (
@@ -253,10 +253,10 @@ CREATE TABLE contact_info (
 );
 
 
-ALTER TABLE public.contact_info OWNER TO root;
+ALTER TABLE public.contact_info OWNER TO monitor_user;
 
 --
--- Name: groups_groups; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: groups_groups; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE groups_groups (
@@ -265,10 +265,10 @@ CREATE TABLE groups_groups (
 );
 
 
-ALTER TABLE public.groups_groups OWNER TO root;
+ALTER TABLE public.groups_groups OWNER TO monitor_user;
 
 --
--- Name: hibernate_sequence; Type: SEQUENCE; Schema: public; Owner: root
+-- Name: hibernate_sequence; Type: SEQUENCE; Schema: public; Owner: monitor_user
 --
 
 CREATE SEQUENCE hibernate_sequence
@@ -279,10 +279,10 @@ CREATE SEQUENCE hibernate_sequence
     CACHE 1;
 
 
-ALTER TABLE public.hibernate_sequence OWNER TO root;
+ALTER TABLE public.hibernate_sequence OWNER TO monitor_user;
 
 --
--- Name: netflow; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: netflow; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE netflow (
@@ -294,10 +294,10 @@ CREATE TABLE netflow (
 );
 
 
-ALTER TABLE public.netflow OWNER TO root;
+ALTER TABLE public.netflow OWNER TO monitor_user;
 
 --
--- Name: netflow_details; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_details; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE netflow_details (
@@ -312,30 +312,30 @@ ALTER TABLE ONLY netflow_details ALTER COLUMN dat SET STATISTICS 250;
 ALTER TABLE ONLY netflow_details ALTER COLUMN network_id SET STATISTICS 100;
 
 
-ALTER TABLE public.netflow_details OWNER TO root;
+ALTER TABLE public.netflow_details OWNER TO monitor_user;
 
 --
--- Name: nn_summ; Type: VIEW; Schema: public; Owner: root
+-- Name: nn_summ; Type: VIEW; Schema: public; Owner: monitor_user
 --
 
 CREATE VIEW nn_summ AS
     SELECT netflow_details.dat, netflow_details.network_id, sum(netflow_details."input") AS "input", sum(netflow_details.output) AS output FROM netflow_details GROUP BY netflow_details.dat, netflow_details.network_id ORDER BY netflow_details.dat, netflow_details.network_id;
 
 
-ALTER TABLE public.nn_summ OWNER TO root;
+ALTER TABLE public.nn_summ OWNER TO monitor_user;
 
 --
--- Name: netflow_day_summary; Type: VIEW; Schema: public; Owner: root
+-- Name: netflow_day_summary; Type: VIEW; Schema: public; Owner: monitor_user
 --
 
 CREATE VIEW netflow_day_summary AS
     SELECT (date_trunc('day'::text, nn_summ.dat))::date AS dat, nn_summ.network_id, sum(nn_summ."input") AS "input", sum(nn_summ.output) AS output FROM nn_summ GROUP BY date_trunc('day'::text, nn_summ.dat), nn_summ.network_id;
 
 
-ALTER TABLE public.netflow_day_summary OWNER TO root;
+ALTER TABLE public.netflow_day_summary OWNER TO monitor_user;
 
 --
--- Name: netflow_networks; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_networks; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE netflow_networks (
@@ -347,10 +347,10 @@ CREATE TABLE netflow_networks (
 );
 
 
-ALTER TABLE public.netflow_networks OWNER TO root;
+ALTER TABLE public.netflow_networks OWNER TO monitor_user;
 
 --
--- Name: netflow_networks_details; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_networks_details; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE netflow_networks_details (
@@ -362,10 +362,10 @@ CREATE TABLE netflow_networks_details (
 );
 
 
-ALTER TABLE public.netflow_networks_details OWNER TO root;
+ALTER TABLE public.netflow_networks_details OWNER TO monitor_user;
 
 --
--- Name: networks; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: networks; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE networks (
@@ -377,30 +377,30 @@ CREATE TABLE networks (
 );
 
 
-ALTER TABLE public.networks OWNER TO root;
+ALTER TABLE public.networks OWNER TO monitor_user;
 
 --
--- Name: network_traffview; Type: VIEW; Schema: public; Owner: root
+-- Name: network_traffview; Type: VIEW; Schema: public; Owner: monitor_user
 --
 
 CREATE VIEW network_traffview AS
     SELECT b.dat, a.net, b."input", b.output FROM networks a, netflow_networks b WHERE (a.id = b.network_id);
 
 
-ALTER TABLE public.network_traffview OWNER TO root;
+ALTER TABLE public.network_traffview OWNER TO monitor_user;
 
 --
--- Name: nn_day_summ; Type: VIEW; Schema: public; Owner: root
+-- Name: nn_day_summ; Type: VIEW; Schema: public; Owner: monitor_user
 --
 
 CREATE VIEW nn_day_summ AS
     SELECT (date_trunc('day'::text, netflow_details.dat))::date AS dat, netflow_details.network_id, sum(netflow_details."input") AS "input", sum(netflow_details.output) AS output FROM netflow_details GROUP BY (date_trunc('day'::text, netflow_details.dat))::date, netflow_details.network_id;
 
 
-ALTER TABLE public.nn_day_summ OWNER TO root;
+ALTER TABLE public.nn_day_summ OWNER TO monitor_user;
 
 --
--- Name: notifications; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: notifications; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE notifications (
@@ -411,10 +411,10 @@ CREATE TABLE notifications (
 );
 
 
-ALTER TABLE public.notifications OWNER TO root;
+ALTER TABLE public.notifications OWNER TO monitor_user;
 
 --
--- Name: snmp_addresses; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: snmp_addresses; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE snmp_addresses (
@@ -425,12 +425,12 @@ CREATE TABLE snmp_addresses (
 );
 
 
-ALTER TABLE public.snmp_addresses OWNER TO root;
+ALTER TABLE public.snmp_addresses OWNER TO monitor_user;
 
 SET default_with_oids = false;
 
 --
--- Name: summary_mail; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: summary_mail; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE summary_mail (
@@ -439,12 +439,12 @@ CREATE TABLE summary_mail (
 );
 
 
-ALTER TABLE public.summary_mail OWNER TO root;
+ALTER TABLE public.summary_mail OWNER TO monitor_user;
 
-SET default_with_oids = true;
+--SET default_with_oids = true;
 
 --
--- Name: temp_ids; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: temp_ids; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE temp_ids (
@@ -452,10 +452,10 @@ CREATE TABLE temp_ids (
 );
 
 
-ALTER TABLE public.temp_ids OWNER TO root;
+ALTER TABLE public.temp_ids OWNER TO monitor_user;
 
 --
--- Name: uptime; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: uptime; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE uptime (
@@ -466,10 +466,10 @@ CREATE TABLE uptime (
 );
 
 
-ALTER TABLE public.uptime OWNER TO root;
+ALTER TABLE public.uptime OWNER TO monitor_user;
 
 --
--- Name: user_perm; Type: TABLE; Schema: public; Owner: root; Tablespace:
+-- Name: user_perm; Type: TABLE; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE TABLE user_perm (
@@ -481,10 +481,10 @@ CREATE TABLE user_perm (
 );
 
 
-ALTER TABLE public.user_perm OWNER TO root;
+ALTER TABLE public.user_perm OWNER TO monitor_user;
 
 --
--- Name: add_uniq; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: add_uniq; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY summary_mail
@@ -492,7 +492,7 @@ ALTER TABLE ONLY summary_mail
 
 
 --
--- Name: addr_uq; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: addr_uq; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY snmp_addresses
@@ -500,7 +500,7 @@ ALTER TABLE ONLY snmp_addresses
 
 
 --
--- Name: addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY addresses
@@ -508,7 +508,7 @@ ALTER TABLE ONLY addresses
 
 
 --
--- Name: aggreg_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: aggreg_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY aggreg
@@ -516,7 +516,7 @@ ALTER TABLE ONLY aggreg
 
 
 --
--- Name: cisco_iface_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: cisco_iface_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY cisco_iface
@@ -524,7 +524,7 @@ ALTER TABLE ONLY cisco_iface
 
 
 --
--- Name: cl_d_uniq; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: cl_d_uniq; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY client_ntraffic
@@ -532,7 +532,7 @@ ALTER TABLE ONLY client_ntraffic
 
 
 --
--- Name: cl_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: cl_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY cl
@@ -540,7 +540,7 @@ ALTER TABLE ONLY cl
 
 
 --
--- Name: client_group_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: client_group_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY client_group
@@ -548,7 +548,7 @@ ALTER TABLE ONLY client_group
 
 
 --
--- Name: client_ntraffic_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: client_ntraffic_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY client_ntraffic
@@ -556,7 +556,7 @@ ALTER TABLE ONLY client_ntraffic
 
 
 --
--- Name: client_unique; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: client_unique; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY cl
@@ -564,7 +564,7 @@ ALTER TABLE ONLY cl
 
 
 --
--- Name: clients_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: clients_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY clients_groups
@@ -572,7 +572,7 @@ ALTER TABLE ONLY clients_groups
 
 
 --
--- Name: contact_info_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: contact_info_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY contact_info
@@ -580,7 +580,7 @@ ALTER TABLE ONLY contact_info
 
 
 --
--- Name: dcl_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: dcl_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY cl_deleted
@@ -588,7 +588,7 @@ ALTER TABLE ONLY cl_deleted
 
 
 --
--- Name: dclient_unique; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: dclient_unique; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY cl_deleted
@@ -596,7 +596,7 @@ ALTER TABLE ONLY cl_deleted
 
 
 --
--- Name: groups_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: groups_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY groups_groups
@@ -604,7 +604,7 @@ ALTER TABLE ONLY groups_groups
 
 
 --
--- Name: ix_pk; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: ix_pk; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY summary_mail
@@ -612,7 +612,7 @@ ALTER TABLE ONLY summary_mail
 
 
 --
--- Name: n_dat; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: n_dat; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY netflow_networks
@@ -620,7 +620,7 @@ ALTER TABLE ONLY netflow_networks
 
 
 --
--- Name: n_datx; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: n_datx; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY netflow_networks_details
@@ -628,7 +628,7 @@ ALTER TABLE ONLY netflow_networks_details
 
 
 --
--- Name: n_un; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: n_un; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY networks
@@ -636,7 +636,7 @@ ALTER TABLE ONLY networks
 
 
 --
--- Name: netflow_details_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_details_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY netflow_details
@@ -644,7 +644,7 @@ ALTER TABLE ONLY netflow_details
 
 
 --
--- Name: netflow_dx; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_dx; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY netflow_details
@@ -652,7 +652,7 @@ ALTER TABLE ONLY netflow_details
 
 
 --
--- Name: netflow_networks_details_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_networks_details_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY netflow_networks_details
@@ -660,7 +660,7 @@ ALTER TABLE ONLY netflow_networks_details
 
 
 --
--- Name: netflow_networks_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_networks_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY netflow_networks
@@ -668,7 +668,7 @@ ALTER TABLE ONLY netflow_networks
 
 
 --
--- Name: netflow_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY netflow
@@ -676,7 +676,7 @@ ALTER TABLE ONLY netflow
 
 
 --
--- Name: networks_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: networks_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY networks
@@ -684,7 +684,7 @@ ALTER TABLE ONLY networks
 
 
 --
--- Name: notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY notifications
@@ -692,7 +692,7 @@ ALTER TABLE ONLY notifications
 
 
 --
--- Name: snmp_addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: snmp_addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY snmp_addresses
@@ -700,7 +700,7 @@ ALTER TABLE ONLY snmp_addresses
 
 
 --
--- Name: tr_ix_un; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: tr_ix_un; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY tr
@@ -708,7 +708,7 @@ ALTER TABLE ONLY tr
 
 
 --
--- Name: tr_pk; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: tr_pk; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY tr
@@ -716,7 +716,7 @@ ALTER TABLE ONLY tr
 
 
 --
--- Name: un_c_up; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: un_c_up; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY uptime
@@ -724,7 +724,7 @@ ALTER TABLE ONLY uptime
 
 
 --
--- Name: uptime_pk; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: uptime_pk; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY uptime
@@ -732,7 +732,7 @@ ALTER TABLE ONLY uptime
 
 
 --
--- Name: user_perm_pkey; Type: CONSTRAINT; Schema: public; Owner: root; Tablespace:
+-- Name: user_perm_pkey; Type: CONSTRAINT; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 ALTER TABLE ONLY user_perm
@@ -740,63 +740,63 @@ ALTER TABLE ONLY user_perm
 
 
 --
--- Name: a_dat_ix1; Type: INDEX; Schema: public; Owner: root; Tablespace:
+-- Name: a_dat_ix1; Type: INDEX; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE INDEX a_dat_ix1 ON aggreg USING btree (dat);
 
 
 --
--- Name: ag_ix1; Type: INDEX; Schema: public; Owner: root; Tablespace:
+-- Name: ag_ix1; Type: INDEX; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE UNIQUE INDEX ag_ix1 ON aggreg USING btree (dat, cisco, iface);
 
 
 --
--- Name: ci_ix2; Type: INDEX; Schema: public; Owner: root; Tablespace:
+-- Name: ci_ix2; Type: INDEX; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE UNIQUE INDEX ci_ix2 ON cisco_iface USING btree (cisco, interface);
 
 
 --
--- Name: netflow_dt; Type: INDEX; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_dt; Type: INDEX; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE INDEX netflow_dt ON netflow_details USING btree (dat);
 
 
 --
--- Name: netflow_ix1; Type: INDEX; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_ix1; Type: INDEX; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE INDEX netflow_ix1 ON netflow_details USING btree (dat, network_id);
 
 
 --
--- Name: netflow_ix2; Type: INDEX; Schema: public; Owner: root; Tablespace:
+-- Name: netflow_ix2; Type: INDEX; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE UNIQUE INDEX netflow_ix2 ON netflow_details USING btree (dat, network_id, host);
 
 
 --
--- Name: tr_ix1; Type: INDEX; Schema: public; Owner: root; Tablespace:
+-- Name: tr_ix1; Type: INDEX; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE INDEX tr_ix1 ON tr USING btree (dt, interface, cisco);
 
 
 --
--- Name: tr_ix2; Type: INDEX; Schema: public; Owner: root; Tablespace:
+-- Name: tr_ix2; Type: INDEX; Schema: public; Owner: monitor_user; Tablespace:
 --
 
 CREATE INDEX tr_ix2 ON tr USING btree (cisco, interface);
 
 
 --
--- Name: c_fk; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: c_fk; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY networks
@@ -804,7 +804,7 @@ ALTER TABLE ONLY networks
 
 
 --
--- Name: client_ntraffic_client_fkey; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: client_ntraffic_client_fkey; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY client_ntraffic
@@ -812,7 +812,7 @@ ALTER TABLE ONLY client_ntraffic
 
 
 --
--- Name: fk143ae6e4190e5; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk143ae6e4190e5; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY user_perm
@@ -820,7 +820,7 @@ ALTER TABLE ONLY user_perm
 
 
 --
--- Name: fk143ae6e4a55f4b45; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk143ae6e4a55f4b45; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY user_perm
@@ -828,7 +828,7 @@ ALTER TABLE ONLY user_perm
 
 
 --
--- Name: fk34207ba268cff56e; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk34207ba268cff56e; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY addresses
@@ -836,7 +836,7 @@ ALTER TABLE ONLY addresses
 
 
 --
--- Name: fk34207ba28e81e60f; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk34207ba28e81e60f; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY addresses
@@ -844,7 +844,7 @@ ALTER TABLE ONLY addresses
 
 
 --
--- Name: fk4c268d6d68cff56e; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk4c268d6d68cff56e; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY contact_info
@@ -852,7 +852,7 @@ ALTER TABLE ONLY contact_info
 
 
 --
--- Name: fk4c268d6d8e81e60f; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk4c268d6d8e81e60f; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY contact_info
@@ -860,7 +860,7 @@ ALTER TABLE ONLY contact_info
 
 
 --
--- Name: fk4e49ec058961032a; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk4e49ec058961032a; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY networks
@@ -868,7 +868,7 @@ ALTER TABLE ONLY networks
 
 
 --
--- Name: fk4e49ec05af12f3cb; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk4e49ec05af12f3cb; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY networks
@@ -876,7 +876,7 @@ ALTER TABLE ONLY networks
 
 
 --
--- Name: fk688f7eb1e2e76db; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk688f7eb1e2e76db; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY clients_groups
@@ -884,7 +884,7 @@ ALTER TABLE ONLY clients_groups
 
 
 --
--- Name: fk688f7eb68cff56e; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk688f7eb68cff56e; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY clients_groups
@@ -892,7 +892,7 @@ ALTER TABLE ONLY clients_groups
 
 
 --
--- Name: fk688f7ebc38c313b; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk688f7ebc38c313b; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY clients_groups
@@ -900,7 +900,7 @@ ALTER TABLE ONLY clients_groups
 
 
 --
--- Name: fk7853069f20c46b30; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk7853069f20c46b30; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY groups_groups
@@ -908,7 +908,7 @@ ALTER TABLE ONLY groups_groups
 
 
 --
--- Name: fk7853069f62ea171e; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk7853069f62ea171e; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY groups_groups
@@ -916,7 +916,7 @@ ALTER TABLE ONLY groups_groups
 
 
 --
--- Name: fk7853069f7b66b0d0; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk7853069f7b66b0d0; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY groups_groups
@@ -924,7 +924,7 @@ ALTER TABLE ONLY groups_groups
 
 
 --
--- Name: fk7853069f847d17e; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: fk7853069f847d17e; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY groups_groups
@@ -932,7 +932,7 @@ ALTER TABLE ONLY groups_groups
 
 
 --
--- Name: net_fk; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: net_fk; Type: FK CONSTRAINT; Schema: public; Owner: monitor_user
 --
 
 ALTER TABLE ONLY netflow_networks
@@ -943,11 +943,12 @@ ALTER TABLE ONLY netflow_networks
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
+--REVOKE ALL ON SCHEMA public FROM PUBLIC;
+--REVOKE ALL ON SCHEMA public FROM postgres;
+--GRANT ALL ON SCHEMA public TO postgres;
+--GRANT ALL ON SCHEMA public TO PUBLIC;
 
+INSERT INTO snmp_addresses(address, community, is_active) VALUES ('127.0.0.1', 'dummy', true);
 
 --
 -- PostgreSQL database dump complete
