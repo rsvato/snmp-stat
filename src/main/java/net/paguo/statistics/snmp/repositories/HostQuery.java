@@ -1,16 +1,15 @@
-package net.paguo.statistics.snmp.model;
+package net.paguo.statistics.snmp.repositories;
 
 import net.paguo.statistics.snmp.database.DBProxy;
 import net.paguo.statistics.snmp.database.DBProxyFactory;
+import net.paguo.statistics.snmp.model.HostDefinition;
+import net.paguo.statistics.snmp.model.HostResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: slava
@@ -19,7 +18,7 @@ import java.util.Set;
  * Version: $Id$
  */
 public class HostQuery {
-    private static final String QUERY = "select address, community from snmp_addresses where is_active";
+    private final HostRepository hostRepository;
     private static final String SAVE_UPTIME = "insert into uptime(dt, uptime, cisco) values(?, ?, ?)";
     private static final String FIND_INTERFACE = "select id from cisco_iface where cisco = ? and interface = ?";
     private static final String ADD_INTERFACE = "insert into cisco_iface (cisco, interface) values (?, ?)";
@@ -30,6 +29,10 @@ public class HostQuery {
 
     private static final Logger log = LoggerFactory.getLogger(HostQuery.class);
     private static final String LAST_CHECK_SAVE = "insert into last_snmp_checks (cisco, last_check) values (?, ?)";
+
+    public HostQuery(HostRepository hostRepository) {
+        this.hostRepository = hostRepository;
+    }
 
     public boolean checkTrafficRecordExists(String hostAddress, String iface, Timestamp now){
         log.debug("checkTrafficRecordExists() <<<");
@@ -57,29 +60,12 @@ public class HostQuery {
     }
 
     public Set<HostDefinition> getDefinitions() {
-        log.debug("getHostList() " + "<<<");
-        DBProxy proxy = DBProxyFactory.getDBProxy();
-        Set<HostDefinition> result = new HashSet<>();
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
         try {
-            c = proxy.getConnection();
-            ps = c.prepareStatement(QUERY);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                HostDefinition element = new HostDefinition();
-                element.setHostAddress(rs.getString(1));
-                element.setCommunity(rs.getString(2));
-                result.add(element);
-            }
-        } catch (SQLException e) {
+            return hostRepository.allActive();
+        } catch (Exception e) {
             log.error("DBError", e);
-        } finally {
-            closeAll(c, ps, rs);
+            return Collections.emptySet();
         }
-        log.debug("getHostList() " + ">>>");
-        return result;
     }
 
     private Long getInterfaceId(String hostAddress, String iface){

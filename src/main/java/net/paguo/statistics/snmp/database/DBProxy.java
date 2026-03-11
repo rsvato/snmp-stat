@@ -1,6 +1,5 @@
 package net.paguo.statistics.snmp.database;
 
-import net.paguo.statistics.snmp.model.HostDefinition;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
@@ -33,10 +32,9 @@ public class DBProxy {
         return ds.getConnection();
     }
 
-    public static void closeConnection(Connection c) throws SQLException {
-        c.close();
-    }
-
-    public void saveUptime(HostDefinition definition, long l) {
+    public <T> T withConnection(ConnectionCallback<T> supplier) throws SQLException {
+        try (Connection conn = getConnection()) {
+            return supplier.execute(conn);
+        }
     }
 }
