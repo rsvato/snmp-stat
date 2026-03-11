@@ -124,7 +124,7 @@ public class HostQuery {
         c.close();
         final long time = new java.util.Date().getTime();
         for (HostResult result : results) {
-            saveLastCheck(result.getAddress().getHostAddress(), new Timestamp(time));
+            saveLastCheck(result.getAddress().hostAddress(), new Timestamp(time));
         }
     }
 
@@ -133,7 +133,7 @@ public class HostQuery {
         PreparedStatement psIf = c.prepareStatement(ADD_INTERFACE);
 
         for (HostResult result : results) {
-            String hostAddress = result.getAddress().getHostAddress();
+            String hostAddress = result.getAddress().hostAddress();
             for (String iface : result.getInterfaces().values()) {
                 Long interfaceId = getInterfaceId(hostAddress, iface);
                 if (interfaceId == null){
@@ -156,7 +156,7 @@ public class HostQuery {
         for (HostResult result : results) {
             psUptime.setTimestamp(1, new Timestamp(new java.util.Date().getTime()));
             psUptime.setLong(2, result.getUptime());
-            psUptime.setString(3, result.getAddress().getHostAddress());
+            psUptime.setString(3, result.getAddress().hostAddress());
             psUptime.addBatch();
         }
         int[] r = psUptime.executeBatch();
@@ -166,7 +166,7 @@ public class HostQuery {
     private int[] saveTraffic(Collection<HostResult> results, Connection c) throws SQLException {
         PreparedStatement psTraffic = c.prepareStatement(INSERT_TRAFFIC);
         for (HostResult result : results) {
-            String hostAddress = result.getAddress().getHostAddress();
+            String hostAddress = result.getAddress().hostAddress();
             Map<Long, String> interfaces = result.getInterfaces();
             Timestamp now = new Timestamp(new java.util.Date().getTime());
             Set<Long> indexes = interfaces.keySet();

@@ -59,12 +59,12 @@ public class HostCallable implements Callable<HostResult> {
         try {
             long start = System.currentTimeMillis();
             doQuery(result);
-            log.debug("{} session time: {} ms", definition.getHostAddress(), System.currentTimeMillis() - start);
+            log.debug("{} session time: {} ms", definition.hostAddress(), System.currentTimeMillis() - start);
         } catch (IOException e) {
             this.result = RESULT.FAILURE;
             log.error("Error getting result for def {}", definition, e);
         }finally{
-            registry.put(definition.getHostAddress(), this.result);
+            registry.put(definition.hostAddress(), this.result);
         }
         return result;
     }
@@ -88,7 +88,7 @@ public class HostCallable implements Callable<HostResult> {
                 def.setUptime(l);
             }
         }else {
-            log.error("Time request failed for " + definition.getHostAddress());
+            log.error("Time request failed for " + definition.hostAddress());
             this.result = RESULT.FAILURE;
             return;
         }
@@ -115,7 +115,7 @@ public class HostCallable implements Callable<HostResult> {
                final String value = doubleStrategy.renameInterface(interfaceName, interfaceIndex);
                result.put(interfaceIndex, value);
                log.debug(MessageFormat
-                       .format("Host: {0} already has {1}", this.definition.getHostAddress(),
+                       .format("Host: {0} already has {1}", this.definition.hostAddress(),
                        interfaceName));
            }else{
                final String value = normalStrategy.renameInterface(interfaceName, interfaceIndex);
@@ -142,13 +142,8 @@ public class HostCallable implements Callable<HostResult> {
         return doubled;
     }
 
-    public String renameInterface(Long interfaceIndex, String interfaceName) {
-        return interfaceName
-                       + "-ix" + String.valueOf(interfaceIndex);
-    }
-
     private Map<Long, String> getBulk(Target target, Session snmp, OID base) throws IOException {
-        Map<Long, String> results = new HashMap<Long, String>();
+        Map<Long, String> results = new HashMap<>();
         VariableBinding binding = runGetNext(target, snmp, base);
         while(binding != null && ! binding.isException() && child(base, binding.getOid())) {
             OID oid = binding.getOid();
@@ -191,12 +186,12 @@ public class HostCallable implements Callable<HostResult> {
     }
 
     private Address createAddress() {
-        return GenericAddress.parse("udp:" + definition.getHostAddress() + "/161");
+        return GenericAddress.parse("udp:" + definition.hostAddress() + "/161");
     }
 
     private CommunityTarget createCommunity(Address snmpAddress) {
         CommunityTarget target = new CommunityTarget();
-        target.setCommunity(new OctetString(definition.getCommunity()));
+        target.setCommunity(new OctetString(definition.community()));
         target.setAddress(snmpAddress);
         target.setRetries(2);
         target.setTimeout(MAX_TIMEOUT);

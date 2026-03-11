@@ -24,7 +24,8 @@ public class HostRepositoryImpl implements HostRepository {
             try (PreparedStatement ps = conn.prepareStatement(query)) {
                 try(ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        HostDefinition hostDefinition = buildHostDefinition(rs);
+                        HostDefinition hostDefinition = new HostDefinition(rs.getString("address"),
+                                rs.getString("community"));
                         result.add(hostDefinition);
                     }
                 }
@@ -35,10 +36,4 @@ public class HostRepositoryImpl implements HostRepository {
         });
     }
 
-    private static HostDefinition buildHostDefinition(ResultSet rs) throws SQLException {
-        HostDefinition hostDefinition = new HostDefinition();
-        hostDefinition.setHostAddress(rs.getString("address"));
-        hostDefinition.setCommunity(rs.getString("community"));
-        return hostDefinition;
-    }
 }

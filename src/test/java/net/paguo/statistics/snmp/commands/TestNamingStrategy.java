@@ -23,20 +23,18 @@ public class TestNamingStrategy {
 
     @Before
     public void init(){
-        definition = new HostDefinition();
-        definition.setCommunity("public");
-        definition.setHostAddress("127.0.0.1");
+        definition = new HostDefinition("public", "127.0.0.1");
 
-        normalInterfaces = new HashMap<Long, String>();
-        normalInterfaces.put(1l, "abc");
-        normalInterfaces.put(2l, "def");
-        normalInterfaces.put(3l, "ghi");
+        normalInterfaces = new HashMap<>();
+        normalInterfaces.put(1L, "abc");
+        normalInterfaces.put(2L, "def");
+        normalInterfaces.put(3L, "ghi");
 
-        doubledInterfaces = new HashMap<Long, String>();
-        doubledInterfaces.put(1l, "foo");
-        doubledInterfaces.put(2l, "foo");
-        doubledInterfaces.put(3l, "foo");
-        doubledInterfaces.put(4l, "foo");
+        doubledInterfaces = new HashMap<>();
+        doubledInterfaces.put(1L, "foo");
+        doubledInterfaces.put(2L, "foo");
+        doubledInterfaces.put(3L, "foo");
+        doubledInterfaces.put(4L, "foo");
     }
 
 
