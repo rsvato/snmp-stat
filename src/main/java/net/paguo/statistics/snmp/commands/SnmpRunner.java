@@ -15,11 +15,10 @@ public class SnmpRunner {
     public List<HostResult> queryHostDefinitions(Set<HostDefinition> definitions) {
         long start = System.currentTimeMillis();
         final List<Future<HostResult>> futures = new ArrayList<>();
-        Map<String, HostCallable.RESULT> registry = new ConcurrentHashMap<>();
 
         try (ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2)) {
             for (HostDefinition hd : definitions) {
-                final Future<HostResult> result = pool.submit(new HostCallable(hd, registry));
+                final Future<HostResult> result = pool.submit(() -> new SnmpHostProcessor().call(hd));
                 futures.add(result);
             }
 

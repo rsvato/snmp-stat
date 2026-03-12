@@ -35,7 +35,7 @@ public class Dumper {
                 String ifaceName = result.getInterfaces().get(ifaceId);
                 String input = result.getInputs().get(ifaceId);
                 String output = result.getOutputs().get(ifaceId);
-                String cisco = result.getAddress().hostAddress();
+                String cisco = result.getHostAddress();
                 String ifacePrint = ifaceName.replaceAll("\\W", "-");
                 lines.add(String.format("%s|%s|%s|%s|%d", cisco, ifacePrint, input, output, time));
             }

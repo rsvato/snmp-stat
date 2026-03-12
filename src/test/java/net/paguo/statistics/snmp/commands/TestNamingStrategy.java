@@ -40,8 +40,8 @@ public class TestNamingStrategy {
 
     @Test
     public void testNormalInterfaces(){
-        HostCallable runner = new HostCallable(definition, null);
-        Map<Long, String> ifs = runner.checkInterfaces(normalInterfaces);
+        SnmpHostProcessor runner = new SnmpHostProcessor();
+        Map<Long, String> ifs = runner.checkInterfaces(normalInterfaces, definition.hostAddress());
         Assert.assertEquals("abc", ifs.get(1L));
         Assert.assertEquals("def", ifs.get(2L));
         Assert.assertEquals("ghi", ifs.get(3L));
@@ -49,8 +49,8 @@ public class TestNamingStrategy {
 
     @Test
     public void testDoubledInterfaces(){
-       HostCallable runner = new HostCallable(definition, null);
-       Map<Long, String> ifs = runner.checkInterfaces(doubledInterfaces);
+       SnmpHostProcessor runner = new SnmpHostProcessor();
+       Map<Long, String> ifs = runner.checkInterfaces(doubledInterfaces, definition.hostAddress());
        Assert.assertEquals("foo-ix1", ifs.get(1L));
        Assert.assertEquals("foo-ix2", ifs.get(2L));
        Assert.assertEquals("foo-ix3", ifs.get(3L));
