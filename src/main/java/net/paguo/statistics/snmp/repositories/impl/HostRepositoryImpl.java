@@ -12,16 +12,17 @@ import java.util.Set;
 
 public class HostRepositoryImpl implements HostRepository {
     private final DBProxy dbProxy;
-    private final String query ="select address, community from snmp_addresses where is_active";
+    private static final String GET_HOSTS_SQL ="select address, community from snmp_addresses where is_active";
 
     public HostRepositoryImpl(DBProxy dbProxy) {
         this.dbProxy = dbProxy;
     }
+
     @Override
     public Set<HostDefinition> allActive() throws SQLException {
         return dbProxy.withConnection(conn -> {
             Set<HostDefinition> result = new HashSet<>();
-            try (PreparedStatement ps = conn.prepareStatement(query)) {
+            try (PreparedStatement ps = conn.prepareStatement(GET_HOSTS_SQL)) {
                 try(ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         HostDefinition hostDefinition = new HostDefinition(rs.getString("address"),

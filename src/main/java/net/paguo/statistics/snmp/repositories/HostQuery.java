@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -19,44 +18,31 @@ import java.util.*;
  */
 public class HostQuery {
     private final HostRepository hostRepository;
+    private final TrafficRecordsReadRepository trafficRecordsReadRepository;
+    private final RoutersRepository routersRepository;
     private static final String SAVE_UPTIME = "insert into uptime(dt, uptime, cisco) values(?, ?, ?)";
-    private static final String FIND_INTERFACE = "select id from cisco_iface where cisco = ? and interface = ?";
-    private static final String ADD_INTERFACE = "insert into cisco_iface (cisco, interface) values (?, ?)";
     private static final String INSERT_TRAFFIC = "insert into tr(cisco, interface, inoctets, outoctets, dt) " +
             "values (?, ?, ?, ?, ?)";
-    private static final String CHECK_TRAFFIC = "select count(*) from tr where cisco = ? and interface =? and dt = ?";
 
 
     private static final Logger log = LoggerFactory.getLogger(HostQuery.class);
     private static final String LAST_CHECK_SAVE = "insert into last_snmp_checks (cisco, last_check) values (?, ?)";
 
-    public HostQuery(HostRepository hostRepository) {
+    public HostQuery(HostRepository hostRepository,
+                     TrafficRecordsReadRepository trafficRecordsReadRepository,
+                     RoutersRepository routersRepository) {
         this.hostRepository = hostRepository;
+        this.trafficRecordsReadRepository = trafficRecordsReadRepository;
+        this.routersRepository = routersRepository;
     }
 
     public boolean checkTrafficRecordExists(String hostAddress, String iface, Timestamp now){
-        log.debug("checkTrafficRecordExists() <<<");
-        DBProxy proxy = DBProxyFactory.getDBProxy();
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        boolean result = false;
         try {
-            c = proxy.getConnection();
-            ps = c.prepareStatement(CHECK_TRAFFIC);
-            ps.setString(1, hostAddress);
-            ps.setString(2, iface);
-            ps.setTimestamp(3, now);
-            rs = ps.executeQuery();
-            if (rs.next()){
-                result = rs.getInt(1) > 1;
-            }
+            return trafficRecordsReadRepository.checkTrafficRecordExists(hostAddress, iface, now);
         } catch (SQLException e) {
-            log.error("DBError", e);
-        } finally {
-            closeAll(c, ps, rs);
+            log.error("Cannot check if record exists for {}, {} and {}", hostAddress, iface, now, e);
+            return false;
         }
-        return result;
     }
 
     public Set<HostDefinition> getDefinitions() {
@@ -66,29 +52,6 @@ public class HostQuery {
             log.error("DBError", e);
             return Collections.emptySet();
         }
-    }
-
-    private Long getInterfaceId(String hostAddress, String iface){
-        DBProxy proxy = DBProxyFactory.getDBProxy();
-        Long result = null;
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            c = proxy.getConnection();
-            ps = c.prepareStatement(FIND_INTERFACE);
-            ps.setString(1, hostAddress);
-            ps.setString(2, iface);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                result = rs.getLong(1);
-            }
-        } catch (SQLException e) {
-            log.error("DBError", e);
-        } finally {
-            closeAll(c, ps, rs);
-        }
-        return result;
     }
 
     private void closeAll(Connection c, PreparedStatement ps, ResultSet rs) {
@@ -113,7 +76,8 @@ public class HostQuery {
         //stage one: save interfaces
         DBProxy proxy = DBProxyFactory.getDBProxy();
         Connection c = proxy.getConnection();
-        saveInterfaces(results, c);
+        int newInterfaces = routersRepository.saveInterfaces(results);
+        log.info("Processed {} interfaces", newInterfaces);
         //save uptimes
         saveUptime(results, c);
         //stage two: save inputs and outputs
@@ -126,27 +90,6 @@ public class HostQuery {
         for (HostResult result : results) {
             saveLastCheck(result.getHostAddress(), new Timestamp(time));
         }
-    }
-
-    private void saveInterfaces(Collection<HostResult> results, Connection c) throws SQLException {
-        log.debug("saveInterfaces(): <<<<");
-        PreparedStatement psIf = c.prepareStatement(ADD_INTERFACE);
-
-        for (HostResult result : results) {
-            String hostAddress = result.getHostAddress();
-            for (String iface : result.getInterfaces().values()) {
-                Long interfaceId = getInterfaceId(hostAddress, iface);
-                if (interfaceId == null){
-                    log.debug(MessageFormat.format("Adding interface {0} for device {1}", iface, hostAddress));
-                    psIf.setString(1, hostAddress);
-                    psIf.setString(2, iface);
-                    psIf.addBatch();
-                }
-            }
-        }
-        psIf.executeBatch();
-        psIf.close();
-        log.debug("saveInterfaces(): done >>>");
     }
 
     private void saveUptime(Collection<HostResult> results, Connection c) throws SQLException {

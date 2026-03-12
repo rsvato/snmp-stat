@@ -24,7 +24,7 @@ public class DBProxy {
         String password = props.getProperty(DBProxyFactory.PASSWORD_KEY);
         ((PGSimpleDataSource) ds).setUser(username);
         ((PGSimpleDataSource) ds).setPassword(password);
-        ((PGSimpleDataSource) ds).setServerNames(new String[] {dbhost});
+        ((PGSimpleDataSource) ds).setServerNames(new String[]{dbhost});
         ((PGSimpleDataSource) ds).setDatabaseName(database);
     }
 
@@ -32,9 +32,15 @@ public class DBProxy {
         return ds.getConnection();
     }
 
-    public <T> T withConnection(ConnectionCallback<T> supplier) throws SQLException {
+    public <T> T withConnection(ConnectionReadCallback<T> executor) throws SQLException {
         try (Connection conn = getConnection()) {
-            return supplier.execute(conn);
+            return executor.execute(conn);
+        }
+    }
+
+    public int run(ConnectionWriteCallback executor) throws SQLException {
+        try (Connection conn = getConnection()) {
+            return executor.run(conn);
         }
     }
 }
