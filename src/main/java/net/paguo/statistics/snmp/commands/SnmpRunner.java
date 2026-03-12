@@ -17,8 +17,9 @@ public class SnmpRunner {
         final List<Future<HostResult>> futures = new ArrayList<>();
 
         try (ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2)) {
-            for (HostDefinition hd : definitions) {
-                final Future<HostResult> result = pool.submit(() -> new SnmpHostProcessor().call(hd));
+            final SnmpHostProcessor processor = new SnmpHostProcessor();
+            for (HostDefinition hostDefinition : definitions) {
+                final Future<HostResult> result = pool.submit(() -> processor.call(hostDefinition));
                 futures.add(result);
             }
 
