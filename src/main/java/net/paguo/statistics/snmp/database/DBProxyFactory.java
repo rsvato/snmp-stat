@@ -17,19 +17,21 @@ import java.util.Properties;
  */
 public class DBProxyFactory {
     private static final Logger log = LoggerFactory.getLogger(DBProxyFactory.class);
-    private static DBProxy proxy;
     static final String HOST_KEY        = "dbhost";
     static final String DATABASE_KEY    = "database";
     static final String USER_KEY        = "username";
     static final String PASSWORD_KEY    = "password";
 
-    public static DBProxy getDBProxy() {
-        if (proxy == null) {
-            Properties props = loadProperties();
-            proxy = new DBProxy(props);
-        }
-        return proxy;
+    private DBProxyFactory() {}
+
+    private static class Holder {
+        static final DBProxy INSTANCE = new DBProxy(loadProperties());
     }
+
+    public static DBProxy getDBProxy() {
+        return Holder.INSTANCE;
+    }
+
 
     private static Properties loadProperties() {
         Properties props = loadDefaultProperties();
@@ -61,12 +63,5 @@ public class DBProxyFactory {
             throw new RuntimeException(e);
         }
         return props;
-    }
-
-    public static DBProxy getDBProxy(Properties props) {
-        if (proxy == null) {
-            proxy = new DBProxy(props);
-        }
-        return proxy;
     }
 }

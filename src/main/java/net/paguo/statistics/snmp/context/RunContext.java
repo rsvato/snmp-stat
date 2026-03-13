@@ -17,15 +17,11 @@ public class RunContext {
         return new HostRepositoryImpl(getDbProxy());
     }
 
-    public TrafficRecordsReadRepository getTrafficReadRepository() {
-        return new TrafficRecordsReadRepositoryImpl(getDbProxy());
-    }
-
     public TrafficRecordsWriteRepository getTrafficRecordsWriteRepository() {
         return new TrafficRecordsWriteRepositoryImpl(getDbProxy());
     }
 
-    public RoutersRepository getRputersRepository() {
+    public RoutersRepository getRoutersRepository() {
         return new RoutersRepositoryImpl(getDbProxy());
     }
 
@@ -41,7 +37,7 @@ public class RunContext {
         return new HostQuery(
                 getHostRepository(),
                 getTrafficRecordsWriteRepository(),
-                getRputersRepository(),
+                getRoutersRepository(),
                 getUptimeRepository(),
                 getColllectionAuditRepository()
         );

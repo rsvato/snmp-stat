@@ -2,12 +2,8 @@ package net.paguo.statistics.snmp.commands;
 
 import net.paguo.statistics.snmp.model.HostDefinition;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,28 +11,18 @@ import java.util.Map;
  */
 public class TestNamingStrategy {
 
-    private static Map<Long, String> normalInterfaces;
-    private static Map<Long, String> doubledInterfaces;
-    private static HostDefinition definition;
-
-    private final static Logger logger = LoggerFactory.getLogger(TestNamingStrategy.class);
-
-    @Before
-    public void init(){
-        definition = new HostDefinition("public", "127.0.0.1");
-
-        normalInterfaces = new HashMap<>();
-        normalInterfaces.put(1L, "abc");
-        normalInterfaces.put(2L, "def");
-        normalInterfaces.put(3L, "ghi");
-
-        doubledInterfaces = new HashMap<>();
-        doubledInterfaces.put(1L, "foo");
-        doubledInterfaces.put(2L, "foo");
-        doubledInterfaces.put(3L, "foo");
-        doubledInterfaces.put(4L, "foo");
-    }
-
+    private final Map<Long, String> normalInterfaces = Map.of(
+            1L, "abc",
+            2L, "def",
+            3L, "ghi"
+    );
+    private final Map<Long, String> doubledInterfaces = Map.of(
+            1L, "foo",
+            2L, "foo",
+            3L, "foo",
+            4L, "foo"
+    );
+    private final HostDefinition definition = new HostDefinition("127.0.0.1", "public");
 
     @Test
     public void testNormalInterfaces(){
@@ -55,7 +41,6 @@ public class TestNamingStrategy {
        Assert.assertEquals("foo-ix2", ifs.get(2L));
        Assert.assertEquals("foo-ix3", ifs.get(3L));
        Assert.assertEquals("foo-ix4", ifs.get(4L));
-       logger.info("All done");
     }
 
 }
