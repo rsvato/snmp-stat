@@ -13,7 +13,7 @@ import java.util.Properties;
  * Time: 0:04:16
  * Version: $Id$
  */
-public class DBProxy {
+public class DBProxy implements ReadProxy, WriteProxy {
     private final DataSource ds;
 
     DBProxy(Properties props) {

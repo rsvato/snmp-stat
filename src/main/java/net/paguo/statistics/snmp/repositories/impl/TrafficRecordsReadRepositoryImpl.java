@@ -1,16 +1,16 @@
 package net.paguo.statistics.snmp.repositories.impl;
 
-import net.paguo.statistics.snmp.database.DBProxy;
+import net.paguo.statistics.snmp.database.ReadProxy;
 import net.paguo.statistics.snmp.repositories.TrafficRecordsReadRepository;
 
 import java.sql.*;
 
 public class TrafficRecordsReadRepositoryImpl implements TrafficRecordsReadRepository {
-    private final DBProxy dbProxy;
+    private final ReadProxy dbProxy;
 
     private static final String CHECK_TRAFFIC_SQL = "select count(*) from tr where cisco = ? and interface =? and dt = ?";
 
-    public TrafficRecordsReadRepositoryImpl(DBProxy dbProxy) {
+    public TrafficRecordsReadRepositoryImpl(ReadProxy dbProxy) {
         this.dbProxy = dbProxy;
     }
 

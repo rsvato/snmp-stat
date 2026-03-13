@@ -1,6 +1,6 @@
 package net.paguo.statistics.snmp.repositories.impl;
 
-import net.paguo.statistics.snmp.database.DBProxy;
+import net.paguo.statistics.snmp.database.WriteProxy;
 import net.paguo.statistics.snmp.model.HostResult;
 import net.paguo.statistics.snmp.repositories.RoutersRepository;
 
@@ -10,10 +10,10 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public class RoutersRepositoryImpl implements RoutersRepository {
-    private final DBProxy dbProxy;
+    private final WriteProxy dbProxy;
     private static final String ADD_INTERFACE = "INSERT INTO cisco_iface (cisco, interface) VALUES (?, ?) ON CONFLICT(cisco, interface) DO NOTHING";
 
-    public RoutersRepositoryImpl(DBProxy dbProxy) {
+    public RoutersRepositoryImpl(WriteProxy dbProxy) {
         this.dbProxy = dbProxy;
     }
 
