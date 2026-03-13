@@ -8,23 +8,20 @@ import java.util.Map;
  * Time: 1:59:54
  */
 public class HostResult {
-    HostDefinition address;
-    long uptime;
-    Map<Long, String> interfaces;
-    Map<Long, String> inputs;
-    Map<Long, String> outputs;
+    private final String hostAddress;
+    private long uptime;
+    private Map<Long, String> interfaces;
+    private Map<Long, String> inputs;
+    private Map<Long, String> outputs;
 
 
-    public HostResult(HostDefinition hd){
-        this.address = hd;
+    public HostResult(String hostAddress){
+        this.hostAddress = hostAddress;
     }
 
-    public HostDefinition getAddress() {
-        return address;
-    }
 
-    public void setAddress(HostDefinition address) {
-        this.address = address;
+    public String getHostAddress() {
+        return hostAddress;
     }
 
     public long getUptime() {
@@ -58,5 +55,13 @@ public class HostResult {
 
     public void setOutputs(Map<Long, String> outputs) {
         this.outputs = outputs;
+    }
+
+    public boolean isValid() {
+        boolean hasInterfaces = getInterfaces() != null && !getInterfaces().isEmpty();
+        boolean hasInputs = getInputs() != null && !getInputs().isEmpty();
+        boolean hasOutputs = getOutputs() != null && !getOutputs().isEmpty();
+        boolean hasUptime = getUptime() > 0;
+        return hasUptime && hasInterfaces && hasInputs && hasOutputs;
     }
 }

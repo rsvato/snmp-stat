@@ -6,23 +6,4 @@ package net.paguo.statistics.snmp.model;
  * Time: 0:17:29
  * Version: $Id$
  */
-public class HostDefinition {
-    private String hostAddress;
-    private String community;
-
-    public String getHostAddress() {
-        return hostAddress;
-    }
-
-    public void setHostAddress(String hostAddress) {
-        this.hostAddress = hostAddress;
-    }
-
-    public String getCommunity() {
-        return community;
-    }
-
-    public void setCommunity(String community) {
-        this.community = community;
-    }
-}
+public record HostDefinition(String hostAddress, String community) {}

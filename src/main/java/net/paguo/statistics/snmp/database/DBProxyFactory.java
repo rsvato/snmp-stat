@@ -3,9 +3,10 @@ package net.paguo.statistics.snmp.database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -16,19 +17,21 @@ import java.util.Properties;
  */
 public class DBProxyFactory {
     private static final Logger log = LoggerFactory.getLogger(DBProxyFactory.class);
-    private static DBProxy proxy;
     static final String HOST_KEY        = "dbhost";
     static final String DATABASE_KEY    = "database";
     static final String USER_KEY        = "username";
     static final String PASSWORD_KEY    = "password";
 
-    public static DBProxy getDBProxy() {
-        if (proxy == null) {
-            Properties props = loadProperties();
-            proxy = new DBProxy(props);
-        }
-        return proxy;
+    private DBProxyFactory() {}
+
+    private static class Holder {
+        static final DBProxy INSTANCE = new DBProxy(loadProperties());
     }
+
+    public static DBProxy getDBProxy() {
+        return Holder.INSTANCE;
+    }
+
 
     private static Properties loadProperties() {
         Properties props = loadDefaultProperties();
@@ -45,26 +48,20 @@ public class DBProxyFactory {
 
     private static Properties loadFileProperties(String propertyFile) throws IOException {
         Properties props;
-        InputStream is = new FileInputStream(propertyFile);
-        props = new Properties();
-        props.load(is);
-        is.close();
+        try (InputStream is = Files.newInputStream(Paths.get(propertyFile))) {
+            props = new Properties();
+            props.load(is);
+        }
         return props;
     }
 
     private static Properties loadDefaultProperties() {
         Properties props = new Properties();
-        props.put(HOST_KEY, "localhost");
-        props.put(DATABASE_KEY, "traffic");
-        props.put(USER_KEY, "root");
-        props.put(PASSWORD_KEY, "test12~");
-        return props;
-    }
-
-    public static DBProxy getDBProxy(Properties props) {
-        if (proxy == null) {
-            proxy = new DBProxy(props);
+        try (InputStream defaultSource = DBProxyFactory.class.getClassLoader().getResourceAsStream("default.properties")) {
+            props.load(defaultSource);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return proxy;
+        return props;
     }
 }

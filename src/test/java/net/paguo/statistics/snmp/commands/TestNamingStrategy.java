@@ -2,12 +2,8 @@ package net.paguo.statistics.snmp.commands;
 
 import net.paguo.statistics.snmp.model.HostDefinition;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,35 +11,23 @@ import java.util.Map;
  */
 public class TestNamingStrategy {
 
-    private static Map<Long, String> normalInterfaces;
-    private static Map<Long, String> doubledInterfaces;
-    private static HostDefinition definition;
-
-    private final static Logger logger = LoggerFactory.getLogger(TestNamingStrategy.class);
-
-    @Before
-    public void init(){
-        definition = new HostDefinition();
-        definition.setCommunity("public");
-        definition.setHostAddress("127.0.0.1");
-
-        normalInterfaces = new HashMap<Long, String>();
-        normalInterfaces.put(1l, "abc");
-        normalInterfaces.put(2l, "def");
-        normalInterfaces.put(3l, "ghi");
-
-        doubledInterfaces = new HashMap<Long, String>();
-        doubledInterfaces.put(1l, "foo");
-        doubledInterfaces.put(2l, "foo");
-        doubledInterfaces.put(3l, "foo");
-        doubledInterfaces.put(4l, "foo");
-    }
-
+    private final Map<Long, String> normalInterfaces = Map.of(
+            1L, "abc",
+            2L, "def",
+            3L, "ghi"
+    );
+    private final Map<Long, String> doubledInterfaces = Map.of(
+            1L, "foo",
+            2L, "foo",
+            3L, "foo",
+            4L, "foo"
+    );
+    private final HostDefinition definition = new HostDefinition("127.0.0.1", "public");
 
     @Test
     public void testNormalInterfaces(){
-        HostCallable runner = new HostCallable(definition, null);
-        Map<Long, String> ifs = runner.checkInterfaces(normalInterfaces);
+        SnmpHostProcessor runner = new SnmpHostProcessor();
+        Map<Long, String> ifs = runner.checkInterfaces(normalInterfaces, definition.hostAddress());
         Assert.assertEquals("abc", ifs.get(1L));
         Assert.assertEquals("def", ifs.get(2L));
         Assert.assertEquals("ghi", ifs.get(3L));
@@ -51,13 +35,12 @@ public class TestNamingStrategy {
 
     @Test
     public void testDoubledInterfaces(){
-       HostCallable runner = new HostCallable(definition, null);
-       Map<Long, String> ifs = runner.checkInterfaces(doubledInterfaces);
+       SnmpHostProcessor runner = new SnmpHostProcessor();
+       Map<Long, String> ifs = runner.checkInterfaces(doubledInterfaces, definition.hostAddress());
        Assert.assertEquals("foo-ix1", ifs.get(1L));
        Assert.assertEquals("foo-ix2", ifs.get(2L));
        Assert.assertEquals("foo-ix3", ifs.get(3L));
        Assert.assertEquals("foo-ix4", ifs.get(4L));
-       logger.info("All done");
     }
 
 }

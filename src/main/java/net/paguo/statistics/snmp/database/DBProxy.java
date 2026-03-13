@@ -1,6 +1,5 @@
 package net.paguo.statistics.snmp.database;
 
-import net.paguo.statistics.snmp.model.HostDefinition;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
@@ -14,7 +13,7 @@ import java.util.Properties;
  * Time: 0:04:16
  * Version: $Id$
  */
-public class DBProxy {
+public class DBProxy implements ReadProxy, WriteProxy {
     private final DataSource ds;
 
     DBProxy(Properties props) {
@@ -25,7 +24,7 @@ public class DBProxy {
         String password = props.getProperty(DBProxyFactory.PASSWORD_KEY);
         ((PGSimpleDataSource) ds).setUser(username);
         ((PGSimpleDataSource) ds).setPassword(password);
-        ((PGSimpleDataSource) ds).setServerNames(new String[] {dbhost});
+        ((PGSimpleDataSource) ds).setServerNames(new String[]{dbhost});
         ((PGSimpleDataSource) ds).setDatabaseName(database);
     }
 
@@ -33,10 +32,15 @@ public class DBProxy {
         return ds.getConnection();
     }
 
-    public static void closeConnection(Connection c) throws SQLException {
-        c.close();
+    public <T> T withConnection(ConnectionReadCallback<T> executor) throws SQLException {
+        try (Connection conn = getConnection()) {
+            return executor.execute(conn);
+        }
     }
 
-    public void saveUptime(HostDefinition definition, long l) {
+    public int run(ConnectionWriteCallback executor) throws SQLException {
+        try (Connection conn = getConnection()) {
+            return executor.run(conn);
+        }
     }
 }

@@ -7,7 +7,6 @@ import net.paguo.statistics.snmp.commands.RenameStrategy;
  */
 public class DoubledRenameStrategyImpl implements RenameStrategy {
     public String renameInterface(String ifaceName, Long ifaceId) {
-        return ifaceName
-                       + "-ix" + ifaceId;
+        return ifaceName + "-ix" + ifaceId;
     }
 }
