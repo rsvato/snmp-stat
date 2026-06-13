@@ -10,18 +10,24 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 public class SnmpSession implements AutoCloseable {
     private final long timeout;
-    private Session snmp;
+    private Snmp snmp;
+    private final TransportMapping<?> transportMapping;
     private final Target target;
 
     private static final Logger log = LoggerFactory.getLogger(SnmpSession.class);
 
     private SnmpSession(String host, String community, long timeout) {
         this.timeout = timeout;
+        try {
+            this.transportMapping = new DefaultUdpTransportMapping();
+        } catch (java.net.SocketException e) {
+            throw new RuntimeException("Failed to create UDP transport mapping", e);
+        }
         this.target = createCommunity(createAddress(host), community);
     }
 
@@ -30,8 +36,8 @@ public class SnmpSession implements AutoCloseable {
     }
 
     private void start() throws IOException {
-        snmp = new Snmp(new DefaultUdpTransportMapping());
-        ((Snmp) snmp).listen();
+        transportMapping.listen();
+        snmp = new Snmp(transportMapping);
     }
 
     private CommunityTarget createCommunity(Address snmpAddress, String community) {
@@ -54,6 +60,9 @@ public class SnmpSession implements AutoCloseable {
     public void close() throws Exception {
         if (snmp != null) {
             snmp.close();
+        }
+        if (transportMapping != null) {
+            transportMapping.close();
         }
     }
 
@@ -87,8 +96,8 @@ public class SnmpSession implements AutoCloseable {
         VariableBinding binding = null;
         PDU response = responseEvent.getResponse();
         if (response != null && response.getErrorStatus() == 0){
-            Vector<?> bindings = response.getVariableBindings();
-            binding = (VariableBinding) bindings.getFirst();
+            List<? extends VariableBinding> bindings = response.getVariableBindings();
+            binding = bindings.getFirst();
         }
         return binding;
     }

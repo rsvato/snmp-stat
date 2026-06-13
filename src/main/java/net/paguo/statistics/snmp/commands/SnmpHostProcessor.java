@@ -15,9 +15,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 /**
  * User: slava
@@ -70,9 +70,9 @@ public class SnmpHostProcessor {
         PDU response = evtx.getResponse();
         Long result = null;
         if (response != null && response.getErrorStatus() == 0){
-            Vector<?> bindings = response.getVariableBindings();
+            List<? extends VariableBinding> bindings = response.getVariableBindings();
             if (!bindings.isEmpty()) {
-                VariableBinding binding = (VariableBinding) bindings.getFirst();
+                VariableBinding binding = bindings.getFirst();
                 Variable variable = binding.getVariable();
                 result = variable.toLong();
             } else {
