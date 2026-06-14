@@ -25,7 +25,7 @@ public class DBProxyFactory {
     private DBProxyFactory() {}
 
     private static class Holder {
-        static final DBProxy INSTANCE = new DBProxy(loadProperties());
+        static final DBProxy INSTANCE = new DBProxyImpl(loadProperties());
     }
 
     public static DBProxy getDBProxy() {

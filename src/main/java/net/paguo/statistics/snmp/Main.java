@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.*;
 import java.io.IOException;
 
 /**
@@ -26,7 +25,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         log.debug("Starting main thread. Getting hosts");
-        RunContext ctx = new RunContext();
+        RunContext ctx = RunContext.defaultContext();
         HostQuery q = ctx.getHostQuery();
         Set<HostDefinition> hostDefinitions = q.getDefinitions();
         List<HostResult> hostResults = ctx.getSnmpRunner().queryHostDefinitions(hostDefinitions);
