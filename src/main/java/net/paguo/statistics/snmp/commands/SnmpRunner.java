@@ -11,13 +11,22 @@ import java.util.concurrent.*;
 public class SnmpRunner {
 
     private static final Logger log = LoggerFactory.getLogger(SnmpRunner.class);
+    private final SnmpHostProcessor processor;
+
+    public SnmpRunner() {
+        this(new SnmpHostProcessor());
+    }
+
+    /** Package-private for testing — accepts a SnmpHostProcessor (can be a mock). */
+    SnmpRunner(SnmpHostProcessor processor) {
+        this.processor = processor;
+    }
 
     public List<HostResult> queryHostDefinitions(Set<HostDefinition> definitions) {
         long start = System.currentTimeMillis();
         final List<Future<HostResult>> futures = new ArrayList<>();
 
         try (ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2)) {
-            final SnmpHostProcessor processor = new SnmpHostProcessor();
             for (HostDefinition hostDefinition : definitions) {
                 final Future<HostResult> result = pool.submit(() -> processor.call(hostDefinition));
                 futures.add(result);
@@ -50,7 +59,7 @@ public class SnmpRunner {
             }
         }
 
-        return results.stream().filter(HostResult::isValid).toList();
+        return results.stream().filter(Objects::nonNull).filter(HostResult::isValid).toList();
     }
 
 }

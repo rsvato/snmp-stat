@@ -45,8 +45,18 @@ public class SnmpHostProcessor {
     }
 
     public HostResult doQuery(String host, String community) throws IOException {
-        HostResult def = new HostResult(host);
         try (SnmpSession snmpSession = SnmpSession.newQuery(host, community, MAX_TIMEOUT)) {
+            return doQuery(host, snmpSession);
+        } catch (Exception e) {
+            log.error("Unexpected exception during SNMP queries to {}", host, e);
+        }
+        return new HostResult(host);
+    }
+
+    /** Package-private for testing — accepts a pre-created SnmpSession (can be a mock). */
+    HostResult doQuery(String host, SnmpSession snmpSession) throws IOException {
+        HostResult def = new HostResult(host);
+        try {
             Long uptime = getUptime(snmpSession, host);
             if (uptime != null) {
                 def.setUptime(uptime);
@@ -66,7 +76,7 @@ public class SnmpHostProcessor {
     }
 
     private Long getUptime(SnmpSession snmp, String address) throws IOException {
-        ResponseEvent evtx = snmp.send(PacketBuilder.uptimePDU());
+        ResponseEvent<?> evtx = snmp.send(PacketBuilder.uptimePDU());
         PDU response = evtx.getResponse();
         Long result = null;
         if (response != null && response.getErrorStatus() == 0){
@@ -85,6 +95,9 @@ public class SnmpHostProcessor {
     }
 
     Map<Long,String> checkInterfaces(Map<Long, String> interfaces, String host) {
+        if (interfaces == null || interfaces.isEmpty()) {
+            return interfaces;
+        }
         Map<Long, String>  result = new HashMap<>();
         RenameStrategy doubleStrategy = new DoubledRenameStrategyImpl();
         Set<String> seen = countEntries(interfaces.values());

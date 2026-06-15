@@ -1,6 +1,7 @@
 package net.paguo.statistics.snmp.database;
 
-import org.postgresql.ds.PGSimpleDataSource;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -14,18 +15,18 @@ import java.util.Properties;
  * Version: $Id$
  */
 public class DBProxyImpl implements DBProxy {
-    private final DataSource ds;
+    private final HikariDataSource ds;
 
     DBProxyImpl(Properties props) {
-        ds = new PGSimpleDataSource();
-        String dbhost = props.getProperty(DBProxyFactory.HOST_KEY);
-        String database = props.getProperty(DBProxyFactory.DATABASE_KEY);
-        String username = props.getProperty(DBProxyFactory.USER_KEY);
-        String password = props.getProperty(DBProxyFactory.PASSWORD_KEY);
-        ((PGSimpleDataSource) ds).setUser(username);
-        ((PGSimpleDataSource) ds).setPassword(password);
-        ((PGSimpleDataSource) ds).setServerNames(new String[]{dbhost});
-        ((PGSimpleDataSource) ds).setDatabaseName(database);
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:postgresql://" + props.getProperty(DBProxyFactory.HOST_KEY)
+                + "/" + props.getProperty(DBProxyFactory.DATABASE_KEY));
+        config.setUsername(props.getProperty(DBProxyFactory.USER_KEY));
+        config.setPassword(props.getProperty(DBProxyFactory.PASSWORD_KEY));
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(1);
+        config.setPoolName("snmp-stat-pool");
+        this.ds = new HikariDataSource(config);
     }
 
     public Connection getConnection() throws SQLException {
@@ -44,5 +45,10 @@ public class DBProxyImpl implements DBProxy {
         try (Connection conn = getConnection()) {
             return executor.run(conn);
         }
+    }
+
+    /** Package-private for testing — provides access to the underlying DataSource. */
+    DataSource getDataSource() {
+        return ds;
     }
 }

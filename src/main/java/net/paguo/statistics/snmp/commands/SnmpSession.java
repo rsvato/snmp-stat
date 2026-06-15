@@ -17,18 +17,26 @@ public class SnmpSession implements AutoCloseable {
     private final long timeout;
     private Snmp snmp;
     private final TransportMapping<?> transportMapping;
-    private final Target target;
+    private final Target<?> target;
 
     private static final Logger log = LoggerFactory.getLogger(SnmpSession.class);
+
+    /** Package-private no-arg constructor for testing pure methods (child). */
+    SnmpSession() {
+        this.timeout = 0;
+        this.snmp = null;
+        this.transportMapping = null;
+        this.target = null;
+    }
 
     private SnmpSession(String host, String community, long timeout) {
         this.timeout = timeout;
         try {
             this.transportMapping = new DefaultUdpTransportMapping();
-        } catch (java.net.SocketException e) {
+            this.target = createCommunity(createAddress(host), community);
+        } catch (IOException e) {
             throw new RuntimeException("Failed to create UDP transport mapping", e);
         }
-        this.target = createCommunity(createAddress(host), community);
     }
 
     private Address createAddress(String address) {
@@ -40,8 +48,8 @@ public class SnmpSession implements AutoCloseable {
         snmp = new Snmp(transportMapping);
     }
 
-    private CommunityTarget createCommunity(Address snmpAddress, String community) {
-        CommunityTarget target = new CommunityTarget();
+    private<T extends Address> CommunityTarget<?> createCommunity(T snmpAddress, String community) {
+        CommunityTarget<T> target = new CommunityTarget<>();
         target.setCommunity(new OctetString(community));
         target.setAddress(snmpAddress);
         target.setRetries(2);
@@ -67,7 +75,7 @@ public class SnmpSession implements AutoCloseable {
     }
 
 
-    public ResponseEvent send(PDU pdu) throws IOException {
+    public ResponseEvent<?> send(PDU pdu) throws IOException {
         return snmp.send(pdu, target);
     }
 
@@ -92,7 +100,7 @@ public class SnmpSession implements AutoCloseable {
         PDU pdu = new PDU();
         pdu.add(new VariableBinding(oid));
         pdu.setType(PDU.GETNEXT);
-        ResponseEvent responseEvent = send(pdu);
+        ResponseEvent<?> responseEvent = send(pdu);
         VariableBinding binding = null;
         PDU response = responseEvent.getResponse();
         if (response != null && response.getErrorStatus() == 0){
@@ -103,7 +111,7 @@ public class SnmpSession implements AutoCloseable {
     }
 
 
-    private boolean child(OID base, OID oid) {
+    boolean child(OID base, OID oid) {
         return oid.toString().startsWith(base.toString());
     }
 }

@@ -9,48 +9,61 @@ import net.paguo.statistics.snmp.repositories.impl.*;
 
 public class RunContext {
 
-    private final DBProxy dbProxy;
+    private final HostRepository hostRepository;
+    private final TrafficRecordsWriteRepository trafficRecordsWriteRepository;
+    private final RoutersRepository routersRepository;
+    private final UptimeRepository uptimeRepository;
+    private final CollectionAuditRepository collectionAuditRepository;
+    private final HostQuery hostQuery;
+    private final SnmpRunner snmpRunner;
 
     public RunContext(DBProxy dbProxy) {
-        this.dbProxy = dbProxy;
+        this.hostRepository = new HostRepositoryImpl(dbProxy);
+        this.trafficRecordsWriteRepository = new TrafficRecordsWriteRepositoryImpl(dbProxy);
+        this.routersRepository = new RoutersRepositoryImpl(dbProxy);
+        this.uptimeRepository = new UptimeRepositoryImpl(dbProxy);
+        this.collectionAuditRepository = new CollectionAuditRepositoryImpl(dbProxy);
+        this.hostQuery = new HostQuery(
+                hostRepository,
+                trafficRecordsWriteRepository,
+                routersRepository,
+                uptimeRepository,
+                collectionAuditRepository
+        );
+        this.snmpRunner = new SnmpRunner();
     }
 
     public HostRepository getHostRepository() {
-        return new HostRepositoryImpl(dbProxy);
+        return hostRepository;
     }
 
     public TrafficRecordsWriteRepository getTrafficRecordsWriteRepository() {
-        return new TrafficRecordsWriteRepositoryImpl(dbProxy);
+        return trafficRecordsWriteRepository;
     }
 
     public RoutersRepository getRoutersRepository() {
-        return new RoutersRepositoryImpl(dbProxy);
+        return routersRepository;
     }
 
     public UptimeRepository getUptimeRepository() {
-        return new UptimeRepositoryImpl(dbProxy);
+        return uptimeRepository;
     }
 
     public CollectionAuditRepository getColllectionAuditRepository() {
-        return new CollectionAuditRepositoryImpl(dbProxy);
+        return collectionAuditRepository;
     }
 
     public HostQuery getHostQuery() {
-        return new HostQuery(
-                getHostRepository(),
-                getTrafficRecordsWriteRepository(),
-                getRoutersRepository(),
-                getUptimeRepository(),
-                getColllectionAuditRepository()
-        );
+        return hostQuery;
     }
 
     public Dumper getDumper() {
-        return new Dumper();
+        String dumpDir = System.getProperty("dump.dir");
+        return new Dumper(dumpDir);
     }
 
     public SnmpRunner getSnmpRunner() {
-        return new SnmpRunner();
+        return snmpRunner;
     }
 
     public static RunContext defaultContext() {

@@ -46,7 +46,8 @@ public class DBProxyFactory {
         return props;
     }
 
-    private static Properties loadFileProperties(String propertyFile) throws IOException {
+    /** Package-private for testing — reads a properties file by path. */
+    static Properties loadFileProperties(String propertyFile) throws IOException {
         Properties props;
         try (InputStream is = Files.newInputStream(Paths.get(propertyFile))) {
             props = new Properties();
@@ -55,7 +56,8 @@ public class DBProxyFactory {
         return props;
     }
 
-    private static Properties loadDefaultProperties() {
+    /** Package-private for testing — reads default.properties from classpath. */
+    static Properties loadDefaultProperties() {
         Properties props = new Properties();
         try (InputStream defaultSource = DBProxyFactory.class.getClassLoader().getResourceAsStream("default.properties")) {
             props.load(defaultSource);

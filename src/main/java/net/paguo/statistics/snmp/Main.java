@@ -1,7 +1,6 @@
 package net.paguo.statistics.snmp;
 
 import net.paguo.statistics.snmp.context.RunContext;
-import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import net.paguo.statistics.snmp.repositories.HostQuery;
 import net.paguo.statistics.snmp.model.HostDefinition;
@@ -23,7 +22,7 @@ import java.io.IOException;
 public class Main {
     public static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         log.debug("Starting main thread. Getting hosts");
         RunContext ctx = RunContext.defaultContext();
         HostQuery q = ctx.getHostQuery();
@@ -32,7 +31,7 @@ public class Main {
         try {
             q.saveInformation(hostResults);
             ctx.getDumper().dumpResults(hostResults);
-        } catch (SQLException | ConfigurationException e) {
+        } catch (SQLException | IOException e) {
             log.error("Error saving results", e);
         }
         log.debug("Finished.");
