@@ -19,8 +19,7 @@ public class DBProxyImpl implements DBProxy {
 
     DBProxyImpl(Properties props) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:postgresql://" + props.getProperty(DBProxyFactory.HOST_KEY)
-                + "/" + props.getProperty(DBProxyFactory.DATABASE_KEY));
+        config.setJdbcUrl(props.getProperty(DBProxyFactory.DB_URL_KEY));
         config.setUsername(props.getProperty(DBProxyFactory.USER_KEY));
         config.setPassword(props.getProperty(DBProxyFactory.PASSWORD_KEY));
         config.setMaximumPoolSize(10);

@@ -17,10 +17,9 @@ import java.util.Properties;
  */
 public class DBProxyFactory {
     private static final Logger log = LoggerFactory.getLogger(DBProxyFactory.class);
-    static final String HOST_KEY        = "dbhost";
-    static final String DATABASE_KEY    = "database";
-    static final String USER_KEY        = "username";
-    static final String PASSWORD_KEY    = "password";
+    static final String USER_KEY     = "username";
+    static final String PASSWORD_KEY = "password";
+    static final String DB_URL_KEY   = "dbUrl";
 
     private DBProxyFactory() {}
 

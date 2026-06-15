@@ -28,8 +28,7 @@ public class DBProxyFactoryTest {
     public void loadDefaultProperties_containsAllKeys() {
         Properties props = DBProxyFactory.loadDefaultProperties();
 
-        Assert.assertTrue("has dbhost", props.containsKey(DBProxyFactory.HOST_KEY));
-        Assert.assertTrue("has database", props.containsKey(DBProxyFactory.DATABASE_KEY));
+        Assert.assertTrue("has dbUrl", props.containsKey(DBProxyFactory.DB_URL_KEY));
         Assert.assertTrue("has username", props.containsKey(DBProxyFactory.USER_KEY));
         Assert.assertTrue("has password", props.containsKey(DBProxyFactory.PASSWORD_KEY));
     }
@@ -38,8 +37,7 @@ public class DBProxyFactoryTest {
     public void loadDefaultProperties_correctDefaultValues() {
         Properties props = DBProxyFactory.loadDefaultProperties();
 
-        Assert.assertEquals("localhost", props.getProperty(DBProxyFactory.HOST_KEY));
-        Assert.assertEquals("network_metrics", props.getProperty(DBProxyFactory.DATABASE_KEY));
+        Assert.assertEquals("jdbc:postgresql://localhost:5432/network_metrics", props.getProperty(DBProxyFactory.DB_URL_KEY));
         Assert.assertEquals("monitor_user", props.getProperty(DBProxyFactory.USER_KEY));
         Assert.assertEquals("monitor_password", props.getProperty(DBProxyFactory.PASSWORD_KEY));
     }
@@ -47,27 +45,25 @@ public class DBProxyFactoryTest {
     @Test
     public void loadFileProperties_readsTempFile() throws IOException {
         Files.writeString(tempFile,
-                "dbhost=prod-host\n" +
-                "database=prod_db\n" +
+                "dbUrl=jdbc:postgresql://prod:5432/prod_db\n" +
                 "username=admin\n" +
                 "password=secret\n");
 
         Properties props = DBProxyFactory.loadFileProperties(tempFile.toString());
 
-        Assert.assertEquals("prod-host", props.getProperty("dbhost"));
-        Assert.assertEquals("prod_db", props.getProperty("database"));
+        Assert.assertEquals("jdbc:postgresql://prod:5432/prod_db", props.getProperty("dbUrl"));
         Assert.assertEquals("admin", props.getProperty("username"));
         Assert.assertEquals("secret", props.getProperty("password"));
     }
 
     @Test
     public void loadFileProperties_readsSubsetOfKeys() throws IOException {
-        Files.writeString(tempFile, "dbhost=override-host\n");
+        Files.writeString(tempFile, "dbUrl=jdbc:postgresql://other:5432/db\n");
 
         Properties props = DBProxyFactory.loadFileProperties(tempFile.toString());
 
-        Assert.assertEquals("override-host", props.getProperty("dbhost"));
-        Assert.assertNull("no database key", props.getProperty("database"));
+        Assert.assertEquals("jdbc:postgresql://other:5432/db", props.getProperty("dbUrl"));
+        Assert.assertNull("no username key", props.getProperty("username"));
     }
 
     @Test(expected = IOException.class)
@@ -90,9 +86,8 @@ public class DBProxyFactoryTest {
 
     @Test
     public void keyConstants_matchExpectedNames() {
-        Assert.assertEquals("dbhost", DBProxyFactory.HOST_KEY);
-        Assert.assertEquals("database", DBProxyFactory.DATABASE_KEY);
         Assert.assertEquals("username", DBProxyFactory.USER_KEY);
         Assert.assertEquals("password", DBProxyFactory.PASSWORD_KEY);
+        Assert.assertEquals("dbUrl", DBProxyFactory.DB_URL_KEY);
     }
 }
